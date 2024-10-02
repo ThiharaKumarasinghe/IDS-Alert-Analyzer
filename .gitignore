@@ -1,0 +1,13 @@
+# Ignore CSV files
+*.csv
+
+# Ignore PCAP files
+*.pcap
+
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environment
+venv/
+.venv/
