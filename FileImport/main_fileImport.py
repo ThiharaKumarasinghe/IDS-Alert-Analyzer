@@ -1,6 +1,6 @@
 import customtkinter as ctk # type: ignore
 from fileImport_functions import select_file, save_file, upload_pcap_file
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk  # type: ignore
 import threading
 
 # Create the main application window

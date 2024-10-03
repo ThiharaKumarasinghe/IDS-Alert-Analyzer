@@ -11,7 +11,7 @@ react_process = None
 
 # Function to convert PCAP to CSV using CICFlowMeter
 def convert_pcap_to_csv(pcap_file):
-    output_dir = ".\\Test-Purpose"
+    output_dir = ".\\CSV_GeneratedFile"
     output_file = os.path.join(output_dir, os.path.basename(pcap_file).replace('.pcap', '.csv'))
 
     # Define the path to your virtual environment's activation script
