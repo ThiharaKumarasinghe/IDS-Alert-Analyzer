@@ -57,5 +57,11 @@ def download_csv():
         return jsonify({"error": str(e)}), 500
 
 
+# Endpoint to create pattern file----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
