@@ -2,8 +2,8 @@ import pandas as pd  # type: ignore
 from collections import Counter
 import os
 import numpy as np
-from sklearn.preprocessing import OrdinalEncoder
-import joblib
+from sklearn.preprocessing import OrdinalEncoder # type: ignore
+import joblib # type: ignore
 import json
 from mining_functions import adaptive_bin_handling, return_unique_labels, get_field_and_value
 
@@ -270,7 +270,7 @@ def mining_patterns_CHARM(alert_file_path):
 
     # pattern_record1 = pattern_record.drop(pattern_record[pattern_record['Label'] == 'Mixed Labels-Not suitable'].index)
     # Save the pattern record DataFrame to a CSV file
-    pattern_record.to_csv('IDS_data_0.01_3Null_19features.csv', index=False)
+    pattern_record.to_csv('./patterns/IDS_data_0.01_3Null_19features.csv', index=False)
 
     # print(pattern_record1.info())
 

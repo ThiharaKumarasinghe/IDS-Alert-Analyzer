@@ -1,13 +1,13 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score
-from sklearn.metrics import pairwise_distances
-from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, StandardScaler
+import pandas as pd  # type: ignore
+import matplotlib.pyplot as plt # type: ignore
+from sklearn.metrics import silhouette_score  # type: ignore
+from sklearn.metrics import pairwise_distances  # type: ignore
+from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, StandardScaler  # type: ignore
 import numpy as np
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import AgglomerativeClustering  # type: ignore
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
-import seaborn as sns
+import seaborn as sns  # type: ignore
 
 from clustering_functions import generate_floats_between, plot_graph_evaluate
 

@@ -5,7 +5,6 @@ import os
 
 # import data mining code
 from mining_patterns_charm import mining_patterns_CHARM 
-from test import testFunction
 
 # Dictionary for remane table features
 rename_dict = {
@@ -100,6 +99,9 @@ CORS(app)
 
 # Path to the CSV file
 csv_file_path = os.path.abspath("../CSV_GeneratedFile/alertCSV.csv")
+
+# Path to the pattern CSV file
+pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features.csv")
 
 # Endpoint to get the alert count--------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/alert-count', methods=['GET'])
