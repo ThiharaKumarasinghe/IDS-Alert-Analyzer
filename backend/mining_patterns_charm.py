@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd  # type: ignore
 from collections import Counter
 import os
 import numpy as np
@@ -195,12 +195,12 @@ def mining_patterns_CHARM(alert_file_path):
 
     for index, IDs_record in enumerate(itemset_records_ID_list):
         alerts_with_patterns_IDs.update(IDs_record)
-        pattern_label_record = list(return_unique_labels(IDs_record, df).items())
-        pattern_label_list.append((itemset_records_object[index][0], pattern_label_record))
+        # pattern_label_record = list(return_unique_labels(IDs_record, df).items())
+        pattern_label_list.append((itemset_records_object[index][0]))
         # print(f"Pattern {index}: {itemset_records_object[index][0]}, \n{pattern_label_record}\n===============================================================================================================")
 
     # Initialize a list to store the patterns with original field and value
-    pattern_record = pd.DataFrame(columns=['Support Count', 'Label'])
+    pattern_record = pd.DataFrame(columns=['Support Count'])
     patterns_with_fields = []
 
     suitable_list = []
@@ -235,28 +235,28 @@ def mining_patterns_CHARM(alert_file_path):
         # Add the support_count to the pattern_data dictionary
         pattern_record.at[index, 'Support Count'] = support_count
 
-        if len(pattern_label_list[index][1]) == 1:
-            pattern_record.at[index, 'Label'] = pattern_label_list[index][1][0][0]
-            # Store the pattern with original field and value along with the support count
-            patterns_with_fields.append({"pattern": record_with_field, "support_count": support_count})
-        else:
-            label_percentage_list = []
-            for multiple_labels in pattern_label_list[index][1]:
-                label_percentage = (multiple_labels[1] / support_count) * 100
-                label_percentage_list.append(label_percentage)
+        # if len(pattern_label_list[index][1]) == 1:
+        #     pattern_record.at[index, 'Label'] = pattern_label_list[index][1][0][0]
+        #     # Store the pattern with original field and value along with the support count
+        #     patterns_with_fields.append({"pattern": record_with_field, "support_count": support_count})
+        # else:
+        #     label_percentage_list = []
+        #     for multiple_labels in pattern_label_list[index][1]:
+        #         label_percentage = (multiple_labels[1] / support_count) * 100
+        #         label_percentage_list.append(label_percentage)
 
-            if max(label_percentage_list) >= 75.0:
-                suitable_list.append(index)
-                pattern_record.at[index, 'Label'] = \
-                    pattern_label_list[index][1][label_percentage_list.index(max(label_percentage_list))][0]
-                # Store the pattern with original field and value along with the support count
-                temp_support_count = pattern_label_list[index][1][label_percentage_list.index(max(label_percentage_list))][
-                    1]
-                patterns_with_fields.append({"pattern": record_with_field, "support_count": temp_support_count})
-            else:
-                not_suitable.append(index)
-                pattern_record.at[index, 'Label'] = 'Mixed Labels-Not suitable'
-                pattern_label_list[index][1][label_percentage_list.index(max(label_percentage_list))][0]
+        #     if max(label_percentage_list) >= 75.0:
+        #         suitable_list.append(index)
+        #         pattern_record.at[index, 'Label'] = \
+        #             pattern_label_list[index][1][label_percentage_list.index(max(label_percentage_list))][0]
+        #         # Store the pattern with original field and value along with the support count
+        #         temp_support_count = pattern_label_list[index][1][label_percentage_list.index(max(label_percentage_list))][
+        #             1]
+        #         patterns_with_fields.append({"pattern": record_with_field, "support_count": temp_support_count})
+        #     else:
+        #         not_suitable.append(index)
+        #         pattern_record.at[index, 'Label'] = 'Mixed Labels-Not suitable'
+        #         pattern_label_list[index][1][label_percentage_list.index(max(label_percentage_list))][0]
 
         # Store the pattern with original field and value along with the support count
         patterns_with_fields.append({"pattern": record_with_field, "support_count": support_count})
@@ -268,13 +268,20 @@ def mining_patterns_CHARM(alert_file_path):
     #     print(pattern_info)
     #     print()
 
-    pattern_record1 = pattern_record.drop(pattern_record[pattern_record['Label'] == 'Mixed Labels-Not suitable'].index)
+    # pattern_record1 = pattern_record.drop(pattern_record[pattern_record['Label'] == 'Mixed Labels-Not suitable'].index)
     # Save the pattern record DataFrame to a CSV file
-    pattern_record1.to_csv('IDS_data_0.01_3Null_19features.csv', index=False)
+    pattern_record.to_csv('IDS_data_0.01_3Null_19features.csv', index=False)
 
-    print(pattern_record1.info())
+    # print(pattern_record1.info())
 
     # print(f"number of patterns {len(pattern_record)}")
     # print(pattern_record['Label'].value_counts())
 
-    return pattern_record1
+     # Create the JSON-friendly pattern data
+    pattern_data = pattern_record.to_dict(orient='records')
+    pattern_count = len(pattern_record)
+
+    # Return both the pattern count and the data
+    return pattern_count, pattern_data
+
+    # return pattern_record1

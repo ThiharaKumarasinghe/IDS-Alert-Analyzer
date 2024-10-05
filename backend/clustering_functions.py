@@ -1,35 +1,35 @@
-from sklearn.metrics import accuracy_score, v_measure_score, silhouette_score, davies_bouldin_score
+from sklearn.metrics import accuracy_score, v_measure_score, silhouette_score, davies_bouldin_score  # type: ignore
 import numpy as np
 
 
 def plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_encoded, df):
     print('\n')
     null_handled_patterns['Cluster'] = clusters
-    null_handled_patterns['Label'] = df['Label']
+    # null_handled_patterns['Label'] = df['Label']
 
     cluster_labels = null_handled_patterns['Cluster'].unique()
     label_mapping = {}
 
-    for cluster in cluster_labels:
-        unique_value_count = null_handled_patterns[null_handled_patterns['Cluster'] == cluster][
-            'Label'].value_counts().reset_index().rename(columns={"index": "value", 0: "count"})
-        new_cluster_name = unique_value_count.iloc[unique_value_count['count'].idxmax()]['Label']
-        # print(new_cluster_name)
-        label_mapping.update({cluster: new_cluster_name})
+    # for cluster in cluster_labels:
+    #     unique_value_count = null_handled_patterns[null_handled_patterns['Cluster'] == cluster][
+    #         'Label'].value_counts().reset_index().rename(columns={"index": "value", 0: "count"})
+    #     new_cluster_name = unique_value_count.iloc[unique_value_count['count'].idxmax()]['Label']
+    #     # print(new_cluster_name)
+    #     label_mapping.update({cluster: new_cluster_name})
 
     null_handled_patterns['new_label'] = null_handled_patterns['Cluster'].map(label_mapping)
 
-    true_labels = null_handled_patterns['Label']
+    # true_labels = null_handled_patterns['Label']
     predict_label = null_handled_patterns['new_label']
 
     # Compute the Accuracy score
-    score_1 = accuracy_score(true_labels, predict_label)
-    score_2 = v_measure_score(true_labels, predict_label)
+    # score_1 = accuracy_score(true_labels, predict_label)
+    # score_2 = v_measure_score(true_labels, predict_label)
     score_3 = silhouette_score(null_handled_patterns_encoded, clusters)
     score_4 = davies_bouldin_score(null_handled_patterns_encoded, clusters)
 
-    print(f"Accuracy Score: {score_1}")
-    print(f"V Measure Score: {score_2}")
+    # print(f"Accuracy Score: {score_1}")
+    # print(f"V Measure Score: {score_2}")
     print(f"Silhouette Score: {score_3}")
     print(f"Davies-Bouldin Index: {score_4}")
 
@@ -57,7 +57,7 @@ def plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_e
     # plt.show()  # Show the plot
     print("--------------------------------------------------------------------------------")
 
-    return score_1, score_2, score_3, score_4
+    return score_3, score_4
 
 
 def generate_floats_between(float_num1, float_num2):

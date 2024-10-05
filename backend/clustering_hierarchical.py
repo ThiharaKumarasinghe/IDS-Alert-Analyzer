@@ -15,7 +15,7 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
     df = pd.read_csv(pattern_file_location)
     print(df.head(10))
     print(df.info())
-    print(df['Label'].value_counts())
+    # print(df['Label'].value_counts())
 
     patterns_with_NaN = df.iloc[:, 2:23]
 
