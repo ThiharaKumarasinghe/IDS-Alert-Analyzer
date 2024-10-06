@@ -3,7 +3,7 @@ import numpy as np
 
 
 def plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_encoded, df):
-    print('\n')
+    # print('\n')
     null_handled_patterns['Cluster'] = clusters
     # null_handled_patterns['Label'] = df['Label']
 
@@ -26,12 +26,12 @@ def plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_e
     # score_1 = accuracy_score(true_labels, predict_label)
     # score_2 = v_measure_score(true_labels, predict_label)
     score_3 = silhouette_score(null_handled_patterns_encoded, clusters)
-    score_4 = davies_bouldin_score(null_handled_patterns_encoded, clusters)
+    # score_4 = davies_bouldin_score(null_handled_patterns_encoded, clusters)
 
     # print(f"Accuracy Score: {score_1}")
     # print(f"V Measure Score: {score_2}")
-    print(f"Silhouette Score: {score_3}")
-    print(f"Davies-Bouldin Index: {score_4}")
+    # print(f"Silhouette Score: {score_3}")
+    # print(f"Davies-Bouldin Index: {score_4}")
 
     # clusters = null_handled_patterns['Cluster'].unique()
     # num_clusters = len(clusters)
@@ -55,9 +55,9 @@ def plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_e
     #     fig.delaxes(axes[j])
 
     # plt.show()  # Show the plot
-    print("--------------------------------------------------------------------------------")
+    # print("--------------------------------------------------------------------------------")
 
-    return score_3, score_4
+    return score_3
 
 
 def generate_floats_between(float_num1, float_num2):

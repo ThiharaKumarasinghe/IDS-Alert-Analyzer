@@ -44,7 +44,7 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
     for idx, column in enumerate(null_handled_patterns.columns):
         null_handled_patterns[column] = null_handled_patterns[column].fillna(-1)
 
-    print(null_handled_patterns.info())
+    # print(null_handled_patterns.info())
 
     null_handled_patterns_encoded = pd.DataFrame(null_handled_patterns, columns=null_handled_patterns.columns)
 
@@ -54,8 +54,8 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
         null_handled_patterns_encoded[col] = le.fit_transform(null_handled_patterns[col])
         label_encoders[col] = le
 
-    print("\nDataFrame after encoding categorical features:")
-    print(null_handled_patterns_encoded.head(20))
+    # print("\nDataFrame after encoding categorical features:")
+    # print(null_handled_patterns_encoded.head(20))
 
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(null_handled_patterns_encoded)
@@ -64,7 +64,7 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
     # Convert DataFrame to numpy array for K-Prototypes
     data_matrix = null_handled_patterns_encoded.values
 
-    print(data_matrix)
+    # print(data_matrix)
 
     # Define methods and metrics
     methods = ['complete', 'average', 'single']
@@ -108,35 +108,34 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
             max_distance = np.max(distances)
 
             list_of_distances = generate_floats_between(min_distance, max_distance)
-            print(list_of_distances)
+            # print(list_of_distances)
 
             for n_distance in list_of_distances:
                 clusters = fcluster(Z, t=n_distance, criterion='distance')
                 n_clusters = len(set(clusters))  # Calculate the number of clusters
-                print(
-                    f"-----------------------------{n_distance, n_clusters, affinity, linkage_method}--------------------------------------")
+                # print(
+                #     f"-----------------------------{n_distance, n_clusters, affinity, linkage_method}--------------------------------------")
 
                 if n_clusters == len(df):
-                    print(f"Skipping. number of clusters are {n_clusters}")
+                    # print(f"Skipping. number of clusters are {n_clusters}")
                     continue
 
                 if n_clusters == 1:
-                    print(f"Skipping. number of clusters are {n_clusters}")
+                    # print(f"Skipping. number of clusters are {n_clusters}")
                     continue
 
                 # Evaluate the clustering performance
-                acc_score, v_measure, silouette, davisB_score = plot_graph_evaluate(clusters, null_handled_patterns,
-                                                                                    null_handled_patterns_encoded, df)
+                silouette = plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_encoded, df)
 
                 # Append the evaluation results to score_data
                 score_data.append({
                     'metric': affinity,
                     'linkage': linkage_method,
                     'number of clusters': n_clusters,
-                    'accuracy_score': acc_score,
-                    'v_measure_score': v_measure,
+                    # 'accuracy_score': acc_score,
+                    # 'v_measure_score': v_measure,
                     'silhouette_score': silouette,
-                    'davies_bouldin_score': davisB_score
+                    # 'davies_bouldin_score': davisB_score
                 })
 
     # Convert the list of dictionaries to a DataFrame

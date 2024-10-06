@@ -146,7 +146,7 @@ def mining_patterns_CHARM(alert_file_path):
     new_df.to_csv('data.txt', index=False, sep=' ', header=False)
 
     # Run the algorithm
-    os.system("java -jar spmf.jar run Charm_bitset data.txt output.txt 0.01% true")
+    os.system("java -jar spmf.jar run Charm_bitset data.txt output.txt 0.1% true")
 
     # Open the file in read mode
     with open("output.txt", 'r', encoding='utf-8') as outFile:

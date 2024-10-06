@@ -6,6 +6,10 @@ import os
 # import data mining code
 from mining_patterns_charm import mining_patterns_CHARM 
 
+# import data cluster code
+from clustering_hierarchical import hierarchical_clustering_using_patterns
+
+
 # Dictionary for remane table features
 rename_dict = {
     'src_ip': 'Src IP',
@@ -101,7 +105,7 @@ CORS(app)
 csv_file_path = os.path.abspath("../CSV_GeneratedFile/alertCSV.csv")
 
 # Path to the pattern CSV file
-pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features.csv")
+pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features_3.csv")
 
 # Endpoint to get the alert count--------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/alert-count', methods=['GET'])
@@ -115,9 +119,6 @@ def get_alert_count():
         # Save the modified DataFrame to a new CSV file (or replace the existing one)
         df.to_csv(csv_file_path, index=False)
 
-
-
-        
         # Assuming each row in the CSV file represents an alert
         alert_count = len(df)
         
@@ -157,8 +158,7 @@ def download_csv():
         return jsonify({"error": str(e)}), 500
 
 
-# Define a route to process the alert file and get the patterns-----------------------------------------------------------------------------------------------------
-# Define a route to get patterns using the predefined CSV file path
+# Define a route to get patterns using the predefined CSV file path---------------------------------------------------------------------------------------------
 @app.route('/api/get_patterns', methods=['GET'])
 def get_patterns():
     try:
@@ -175,7 +175,41 @@ def get_patterns():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
+# @app.route('/api/get-clusters', methods=['GET'])
+# def get_cluster_data():
+#     try:
+#         # Read the CSV file into a DataFrame
+#         df = hierarchical_clustering_using_patterns(pattern_csv_path)
+        
+#         # Convert DataFrame to a list of dictionaries (for JSON serialization)
+#         csv_data = df.to_dict(orient='records')
+        
+#         # Return the CSV data as JSON response
+#         return jsonify(csv_data), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
+
+@app.route('/api/get-clusters', methods=['GET'])
+def get_cluster_data():
+    try:
+        # Read the CSV file into a DataFrame
+        df = hierarchical_clustering_using_patterns(pattern_csv_path)
+        
+        # Group the data by 'cluster' to calculate the required information
+        cluster_summary = df.groupby('cluster').agg(
+            pattern_count=('cluster', 'size'),             # Count of patterns in each cluster
+            total_alerts=('Support Count', 'sum')          # Summation of Support Count (alerts) in each cluster
+        ).reset_index()
+        
+        # Convert to a list of dictionaries (for JSON serialization)
+        cluster_data = cluster_summary.to_dict(orient='records')
+        
+        # Return the cluster data as JSON response
+        return jsonify(cluster_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
