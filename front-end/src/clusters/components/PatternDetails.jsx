@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from "axios";
 import AlertTable from "../../alerts/components/AlertTable";
+import { IoArrowBack } from "react-icons/io5";
 
 const PatternDetails = () => {
   const { clusterName } = useParams(); // Get clusterName from URL
@@ -16,17 +17,16 @@ const PatternDetails = () => {
   // Fetch pattern data for the specific cluster
   const fetchClusterPatterns = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/cluster/${clusterName}/patterns`);
-      const { alert_count, cluster_name, pattern_count, pattern_data } = response.data;
+      const response = await axios.get(
+        `http://localhost:5000/api/cluster/${clusterName}/patterns`
+      );
+      const { alert_count, cluster_name, pattern_count, pattern_data } =
+        response.data;
       setPatternData(pattern_data);
       setClusterNumber(cluster_name);
       setPatternCount(pattern_count);
       setAlertCount(alert_count);
       setLoading(false);
-      console.log("Alert data " + alert_count);
-      console.log("Cluster data " + cluster_name);
-      console.log("Pattern count " + pattern_count);
-      console.log("Pattern data " + pattern_data);
     } catch (err) {
       setError("Error fetching cluster patterns");
       setLoading(false);
@@ -43,17 +43,20 @@ const PatternDetails = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <button 
-        className="mb-4 text-blue-500 hover:underline" 
-        onClick={() => navigate(-1)} // Navigate back to the previous page
+      <button
+        className="mb-4 text-blue-500 hover:underline border px-4 py-2 rounded-full flex items-center justify-center gap-2"
+        onClick={() => navigate("/clusters-back")} // Navigate to /clusters-back
       >
+        <div>
+          <IoArrowBack />
+        </div>
         Back
       </button>
-      <h2 className="text-2xl font-bold mb-4">
-        Patterns for Cluster: {clusterName}
+      <h2 className="text-2xl font-bold mb-4 bg-lightPurple rounded-full px-4 py-2 flex">
+        Patterns for Cluster - {clusterName}
       </h2>
-      <p>Pattern Count: {patternCount}</p>
-      <p>Alert Count: {alertCount}</p>
+      <p>Pattern Count : <span className=" font-bold">{patternCount}</span></p>
+      <p>Alert Count   : <span className=" font-bold">{alertCount}</span></p>
 
       {/* List the pattern details */}
       <AlertTable csvAlertData={patternData} />

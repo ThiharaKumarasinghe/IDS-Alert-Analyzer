@@ -264,5 +264,37 @@ def get_cluster_patterns(cluster_name):
         return jsonify({"error": str(e)}), 500
 
 
+# Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
+@app.route('/api/get-clusters-back', methods=['GET'])
+def get_cluster_data_back():
+    try:
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(cluster_csv_path)
+        
+        # Group the data by 'cluster' to calculate the required information
+        cluster_summary = df.groupby('cluster').agg(
+            pattern_count=('cluster', 'size'),             # Count of patterns in each cluster
+            total_alerts=('Support Count', 'sum')          # Summation of Support Count (alerts) in each cluster
+        ).reset_index()
+        
+        # Convert to a list of dictionaries (for JSON serialization)
+        cluster_data = cluster_summary.to_dict(orient='records')
+        
+        # Return the cluster data as JSON response
+        return jsonify(cluster_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

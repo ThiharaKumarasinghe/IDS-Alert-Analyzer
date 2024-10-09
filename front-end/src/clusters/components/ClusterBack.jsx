@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ClusterView from "./components/ClusterView"; // Assuming this component renders individual cluster details
+import ClusterView from "./ClusterView";
 
 const ClusterBack = () => {
-  // State to store the fetched cluster data and loading/error status
   const [clusterData, setClusterData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rangeValue, setRangeValue] = useState(40); // State for the range input
 
-  // Fetch cluster data from the backend
   const fetchClusterData = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/get-clusters-back');
@@ -20,10 +19,8 @@ const ClusterBack = () => {
     }
   };
 
-  // Calculate cluster count based on clusterData length
-  const clusterCount = clusterData.length; // Use `.length` property, not a function
+  const clusterCount = clusterData.length;
 
-  // Fetch data when the component mounts
   useEffect(() => {
     fetchClusterData();
   }, []);
@@ -33,7 +30,6 @@ const ClusterBack = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {/* Header */}
       <div className="flex flex-row justify-between items-center mb-4">
         <p className="py-2 px-6 rounded-full border-2">
           Cluster Count: {clusterCount !== null ? clusterCount : "Loading..."}
@@ -45,7 +41,6 @@ const ClusterBack = () => {
         </p>
       </div>
 
-      {/* Silhouette Score changing */}
       <div className="flex flex-col items-center justify-center gap-2 pt-4">
         <div className="flex gap-2">
           <p className="py-2 px-6 rounded-full border-2">
@@ -58,20 +53,18 @@ const ClusterBack = () => {
           </button>
         </div>
 
-        {/* Range bar */}
         <input
           type="range"
           min={0}
           max="100"
-          value="40"
+          value={rangeValue} // Controlled input
+          onChange={(e) => setRangeValue(e.target.value)} // Update state on change
           className="range max-w-80"
         />
       </div>
 
-      {/* Error handling */}
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* Clusters */}
       <div className="py-5">
         {loading ? (
           <p>Loading...</p>

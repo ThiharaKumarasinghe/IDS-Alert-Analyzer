@@ -7,6 +7,7 @@ import Alerts from "../alerts/Alerts";
 import Clusters from "../clusters/Clusters";
 import XAI from "../XAI/XAI";
 import PatternDetails from "../clusters/components/PatternDetails";
+import ClusterBack from "../clusters/components/ClusterBack";
 
   const router = createBrowserRouter([
     {
@@ -29,6 +30,10 @@ import PatternDetails from "../clusters/components/PatternDetails";
             path: "/cluster/:clusterName/patterns",
             element:<PatternDetails/>,
         },
+        {
+          path: "/clusters-back",
+          element:<ClusterBack/>,
+      },
         {
           path: "/xai",
           element:<XAI/>,
