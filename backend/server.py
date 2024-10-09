@@ -196,11 +196,35 @@ def get_patterns():
 
 
 # Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
+# @app.route('/api/get-clusters', methods=['GET'])
+# def get_cluster_data():
+#     try:
+#         # Read the CSV file into a DataFrame
+#         df = hierarchical_clustering_using_patterns(pattern_csv_path)
+        
+#         # Group the data by 'cluster' to calculate the required information
+#         cluster_summary = df.groupby('cluster').agg(
+#             pattern_count=('cluster', 'size'),             # Count of patterns in each cluster
+#             total_alerts=('Support Count', 'sum')          # Summation of Support Count (alerts) in each cluster
+#         ).reset_index()
+        
+#         # Convert to a list of dictionaries (for JSON serialization)
+#         cluster_data = cluster_summary.to_dict(orient='records')
+        
+#         # Return the cluster data as JSON response
+#         return jsonify(cluster_data), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# Get all clusters from patterns based on silhouette score
 @app.route('/api/get-clusters', methods=['GET'])
 def get_cluster_data():
     try:
-        # Read the CSV file into a DataFrame
-        df = hierarchical_clustering_using_patterns(pattern_csv_path)
+        # Get the silhouette score from the query parameters
+        silhouette_score = float(request.args.get('score', 0.8))  # Default value of 0.8 if not provided
+        
+        # Call the clustering function with the silhouette score
+        df = hierarchical_clustering_using_patterns(pattern_csv_path, silhouette_score)
         
         # Group the data by 'cluster' to calculate the required information
         cluster_summary = df.groupby('cluster').agg(
@@ -215,6 +239,7 @@ def get_cluster_data():
         return jsonify(cluster_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # Get pattern details in given cluster----------------------------------------------------------------------------------------------------------------------------

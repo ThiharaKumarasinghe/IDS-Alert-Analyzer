@@ -3,33 +3,33 @@ import axios from "axios";
 import ClusterView from "./components/ClusterView"; // Assuming this component renders individual cluster details
 
 const Clusters = () => {
-  // State to store the fetched cluster data and loading/error status
   const [clusterData, setClusterData] = useState([]);
+  const [silhouetteScore, setSilhouetteScore] = useState(0.8);  // Default silhouette score
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch cluster data from the backend
-  const fetchClusterData = async () => {
+  // Fetch cluster data with the silhouette score
+  const fetchClusterData = async (score) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/get-clusters');
+      setLoading(true); // Set loading to true when fetching starts
+      const response = await axios.get(
+        `http://localhost:5000/api/get-clusters?score=${score}`
+      );
       setClusterData(response.data);
-      setLoading(false);
+      setLoading(false); // Set loading to false when fetch completes
     } catch (err) {
-      setError('Error fetching cluster data');
-      setLoading(false);
+      setError("Error fetching cluster data");
+      setLoading(false); // Set loading to false on error
     }
   };
 
   // Calculate cluster count based on clusterData length
-  const clusterCount = clusterData.length; // Use `.length` property, not a function
+  const clusterCount = clusterData.length;
 
   // Fetch data when the component mounts
   useEffect(() => {
-    fetchClusterData();
+    fetchClusterData(silhouetteScore);
   }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
 
   return (
     <div className="container mx-auto p-4">
@@ -39,9 +39,8 @@ const Clusters = () => {
           Cluster Count: {clusterCount !== null ? clusterCount : "Loading..."}
         </p>
 
-        <p className="py-2 px-6 rounded-full border-2 bg-purple-600 text-white bg-purple">
-          Optimal Silhouette Score: {/* Update this with actual silhouette score if available */}
-          {clusterCount !== null ? clusterCount : "Loading..."}
+        <p className="py-2 px-6 rounded-full border-2  text-white bg-purple">
+          Optimal Silhouette Score: 0.80
         </p>
       </div>
 
@@ -49,11 +48,13 @@ const Clusters = () => {
       <div className="flex flex-col items-center justify-center gap-2 pt-4">
         <div className="flex gap-2">
           <p className="py-2 px-6 rounded-full border-2">
-            Silhouette Score: {/* Placeholder or actual score if available */}
-            {clusterCount !== null ? clusterCount : "Loading..."}
+            Silhouette Score: {silhouetteScore}
           </p>
 
-          <button className="bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-400 hover:text-black transition-all cursor-pointer">
+          <button
+            className="hover:scale-105 px-6 py-2 rounded-full hover:bg-purple-40 transition-all cursor-pointer text-white bg-purple"
+            onClick={() => fetchClusterData(silhouetteScore)}
+          >
             Apply
           </button>
         </div>
@@ -61,9 +62,11 @@ const Clusters = () => {
         {/* Range bar */}
         <input
           type="range"
-          min={0}
-          max="100"
-          value="40"
+          min="0"
+          max="1"
+          step="0.01"
+          value={silhouetteScore}
+          onChange={(e) => setSilhouetteScore(e.target.value)} // Update silhouette score
           className="range max-w-80"
         />
       </div>
@@ -71,10 +74,13 @@ const Clusters = () => {
       {/* Error handling */}
       {error && <p className="text-red-600">{error}</p>}
 
+      {/* Loading Message */}
+      {loading && <p>Please wait.</p>}
+
       {/* Clusters */}
       <div className="py-5">
         {loading ? (
-          <p>Loading...</p>
+          <p className=" font-bold text-red-500">Loading results...</p>
         ) : (
           <div className="grid grid-cols-5 gap-4">
             {clusterData.map((cluster, index) => (

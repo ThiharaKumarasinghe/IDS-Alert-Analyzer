@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ClusterView from "./ClusterView";
+import { useNavigate } from "react-router-dom";
 
 const ClusterBack = () => {
+    const navigate = useNavigate();
+
+  const handleBackToCluster = () => {
+    // Navigate to the cluster page
+    navigate(`/clusters`);
+  };
+
   const [clusterData, setClusterData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,35 +43,15 @@ const ClusterBack = () => {
           Cluster Count: {clusterCount !== null ? clusterCount : "Loading..."}
         </p>
 
-        <p className="py-2 px-6 rounded-full border-2 bg-purple-600 text-white bg-purple">
-          Optimal Silhouette Score: {/* Update this with actual silhouette score if available */}
-          {clusterCount !== null ? clusterCount : "Loading..."}
-        </p>
+        <button
+        className="mt-2 mb-4 bg-purple text-white px-4 py-2 rounded-lg hover:bg-darkPurple"
+        onClick={handleBackToCluster}
+      >
+        Press to Change Silhouette Score
+      </button>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-2 pt-4">
-        <div className="flex gap-2">
-          <p className="py-2 px-6 rounded-full border-2">
-            Silhouette Score: {/* Placeholder or actual score if available */}
-            {clusterCount !== null ? clusterCount : "Loading..."}
-          </p>
-
-          <button className="bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-400 hover:text-black transition-all cursor-pointer">
-            Apply
-          </button>
-        </div>
-
-        <input
-          type="range"
-          min={0}
-          max="100"
-          value={rangeValue} // Controlled input
-          onChange={(e) => setRangeValue(e.target.value)} // Update state on change
-          className="range max-w-80"
-        />
-      </div>
-
-      {error && <p className="text-red-600">{error}</p>}
+      
 
       <div className="py-5">
         {loading ? (

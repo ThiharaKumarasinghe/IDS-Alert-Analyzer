@@ -11,7 +11,7 @@ import seaborn as sns  # type: ignore
 
 from clustering_functions import generate_floats_between, plot_graph_evaluate
 
-def hierarchical_clustering_using_patterns(pattern_file_location):
+def hierarchical_clustering_using_patterns(pattern_file_location,silhouette_score):
     df = pd.read_csv(pattern_file_location)
     print(df.head(10))
     print(df.info())
@@ -142,7 +142,7 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
     score_df = pd.DataFrame(score_data)
     cosine_metric = score_df[score_df['metric'] == 'cosine']
     average_cosine = cosine_metric[cosine_metric['linkage'] == 'average']
-    num_optimum_clusters = average_cosine[average_cosine['silhouette_score']>0.80].iloc[-1]['number of clusters']
+    num_optimum_clusters = average_cosine[average_cosine['silhouette_score']>silhouette_score].iloc[-1]['number of clusters']
 
     hierarchical_clustering = AgglomerativeClustering(n_clusters=num_optimum_clusters,
                                                     metric='cosine',
