@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file  # type: ignore
 import pandas as pd  # type: ignore
 from flask_cors import CORS  # type: ignore
 import os
+import numpy as np
 
 # import data mining code
 from mining_patterns_charm import mining_patterns_CHARM 
@@ -107,6 +108,9 @@ csv_file_path = os.path.abspath("../CSV_GeneratedFile/alertCSV.csv")
 # Path to the pattern CSV file
 pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features_3.csv")
 
+# Path to the cluster CSV file
+cluster_csv_path = os.path.abspath("./clustering/cluster_data.csv")
+
 # Endpoint to get the alert count--------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/alert-count', methods=['GET'])
 def get_alert_count():
@@ -191,6 +195,7 @@ def get_patterns():
 #         return jsonify({"error": str(e)}), 500
 
 
+# Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/get-clusters', methods=['GET'])
 def get_cluster_data():
     try:
@@ -212,6 +217,51 @@ def get_cluster_data():
         return jsonify({"error": str(e)}), 500
 
 
+# Get pattern details in given cluster----------------------------------------------------------------------------------------------------------------------------
+@app.route('/api/cluster/<cluster_name>/patterns', methods=['GET'])
+def get_cluster_patterns(cluster_name):
+    try:
+        # Convert the cluster_name from string to integer
+        cluster_name_int = int(cluster_name)
+        
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(cluster_csv_path)
+        
+        # Filter the DataFrame by the given cluster name (as integer)
+        filtered_cluster = df[df['cluster'] == cluster_name_int]
+        
+        if filtered_cluster.empty:
+            return jsonify({"error": "Cluster not found"}), 404
+        
+        # Get pattern count and alert count (sum of Support Count)
+        pattern_count = int(len(filtered_cluster))  # Convert to int
+        alert_count = int(filtered_cluster['Support Count'].sum())  # Convert to int
+        
+        # Convert the filtered data to a list of dictionaries
+        pattern_data = filtered_cluster.to_dict(orient='records')
+        
+        # Replace NaN values with None (which will be serialized as null in JSON)
+        for pattern in pattern_data:
+            for key, value in pattern.items():
+                if isinstance(value, (np.int64, np.float64)):  # Check for NumPy types
+                    pattern[key] = value.item()  # Convert to Python native type
+                elif pd.isna(value):  # Check for NaN values
+                    pattern[key] = None  # Replace NaN with None
+        
+        # Return the pattern data, pattern count, and alert count as JSON response
+        return jsonify({
+            "cluster_name": cluster_name_int,
+            "pattern_count": pattern_count,
+            "alert_count": alert_count,
+            "pattern_data": pattern_data
+        }), 200
+    
+    except ValueError:
+        return jsonify({"error": "Invalid cluster name, must be an integer"}), 400
+    except FileNotFoundError:
+        return jsonify({"error": "Cluster CSV file not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

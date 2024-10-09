@@ -161,6 +161,6 @@ def hierarchical_clustering_using_patterns(pattern_file_location):
 
     df['cluster'] = clusters
 
-    df.to_csv('cluster_date.csv')
+    df.to_csv('./clustering/cluster_data.csv', index=False)
 
     return df

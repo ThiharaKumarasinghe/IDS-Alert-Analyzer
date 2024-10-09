@@ -6,6 +6,7 @@ import Home from "../Home";
 import Alerts from "../alerts/Alerts";
 import Clusters from "../clusters/Clusters";
 import XAI from "../XAI/XAI";
+import PatternDetails from "../clusters/components/PatternDetails";
 
   const router = createBrowserRouter([
     {
@@ -25,9 +26,13 @@ import XAI from "../XAI/XAI";
             element:<Clusters/>,
         },
         {
-            path: "/xai",
-            element:<XAI/>,
+            path: "/cluster/:clusterName/patterns",
+            element:<PatternDetails/>,
         },
+        {
+          path: "/xai",
+          element:<XAI/>,
+      },
 
       ]
     },
