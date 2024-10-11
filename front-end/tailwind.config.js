@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        "darkPurple": "#433878",
-        "purple": "#7E60BF",
-        "semiLightPurple": "#E4B1F0",
-        "lightPurple": "#FFE1FF",
+        "darkPurple": "#050C9C",
+        "purple": "#3572EF",
+        "semiLightPurple": "#3ABEF9",
+        "lightPurple": "#DDF2FD",
       }
     },
   },
