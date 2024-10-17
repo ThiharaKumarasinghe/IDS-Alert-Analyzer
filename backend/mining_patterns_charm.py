@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.preprocessing import OrdinalEncoder
 import joblib
 import json
-from mining_functions import adaptive_bin_handling, return_unique_labels, get_field_and_value
+from mining_functions import adaptive_bin_handling, map_ranges_to_pattern_df, return_unique_labels, get_field_and_value
 
 def mining_patterns_CHARM(alert_file_path):
     df = pd.read_csv(alert_file_path)
@@ -277,4 +277,5 @@ def mining_patterns_CHARM(alert_file_path):
     # print(f"number of patterns {len(pattern_record)}")
     # print(pattern_record['Label'].value_counts())
 
-    return pattern_record1
+
+    return map_ranges_to_pattern_df(pattern_record1, bin_data)
