@@ -31,11 +31,11 @@ def adaptive_bin_handling(column_name, df, bin_data):
 
     ranges = {}
     for idx in range(len(bin_edges) - 1):
-        ranges.update({f"{(bin_edges[idx] + bin_edges[idx + 1]) / 2}": (bin_edges[idx], bin_edges[idx + 1])})
+        ranges.update({(bin_edges[idx] + bin_edges[idx + 1]) / 2: (bin_edges[idx], bin_edges[idx + 1])})
 
-    bin_data.append([column_name, ranges])
+    bin_data.append([f"{column_name} Category", ranges])
 
-    # Apply categorization to 'Flow Duration' column
+    # Apply categorization to column
     df[f'{column_name} Category'] = df[f'{column_name}'].apply(lambda x: categorize_value(x, ranges))
     # print(df[f'{column_name} Category'].value_counts())
 
@@ -61,3 +61,16 @@ def get_field_and_value(num,reverse_mapping):
         if num in mapping:
             return field, mapping[num]
     return "Unknown", "Unknown"
+
+def map_ranges_to_pattern_df(pattern_df, categorization_data):
+    # Create a dictionary for quick lookup of ranges
+    pattern_df_mapped = pattern_df.copy()
+
+    for category_data in categorization_data:
+        column = category_data[0]
+        ranges_dict = category_data[1]
+
+        # Map the values in the column to their corresponding ranges
+        pattern_df_mapped[column] = pattern_df[column].map(ranges_dict)
+    
+    return pattern_df_mapped
