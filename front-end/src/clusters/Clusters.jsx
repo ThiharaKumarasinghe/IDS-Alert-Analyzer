@@ -4,7 +4,7 @@ import ClusterView from "./components/ClusterView"; // Assuming this component r
 
 const Clusters = () => {
   const [clusterData, setClusterData] = useState([]);
-  const [silhouetteScore, setSilhouetteScore] = useState(0.8);  // Default silhouette score
+  const [silhouetteScore, setSilhouetteScore] = useState(0.8); // Default silhouette score
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,6 +31,43 @@ const Clusters = () => {
     fetchClusterData(silhouetteScore);
   }, []);
 
+  const [isTraining, setIsTraining] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+
+  // Function to start the training
+  const startTraining = async () => {
+    setStatusMessage("Model is training...");
+    setIsTraining(true);
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/train-xai-model",
+        { method: "GET" }
+      );
+      if (!response.ok) {
+        throw new Error("Error starting model training");
+      }
+
+      const intervalId = setInterval(async () => {
+        const statusResponse = await fetch(
+          "http://localhost:5000/api/training-status",
+          { method: "GET" }
+        );
+        const status = await statusResponse.json();
+
+        if (!status.is_training) {
+          setStatusMessage("Training complete!");
+          setIsTraining(false);
+          clearInterval(intervalId);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error during training:", error);
+      setStatusMessage("An error occurred during training.");
+      setIsTraining(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       {/* Header */}
@@ -38,6 +75,20 @@ const Clusters = () => {
         <p className="py-2 px-6 rounded-full border-2">
           Cluster Count: {clusterCount !== null ? clusterCount : "Loading..."}
         </p>
+
+        {/* model traing button */}
+        <div className=" flex gap-2 items-center bg-lightPurple p-2 rounded-full">
+          <button
+            onClick={startTraining}
+            disabled={isTraining}
+            className="py-2 px-6 rounded-full border-2  text-white bg-darkPurple"
+          >
+            {isTraining ? "Training in Progress..." : "Start Training"}
+          </button>
+
+          {/* Status message */}
+          <p className=" text-red-500 mr-3">{statusMessage}</p>
+        </div>
 
         <p className="py-2 px-6 rounded-full border-2  text-white bg-purple">
           Optimal Silhouette Score: 0.80
@@ -84,7 +135,10 @@ const Clusters = () => {
         ) : (
           <div className="grid grid-cols-5 gap-4">
             {clusterData.map((cluster, index) => (
-              <div key={index} className="p-4 border rounded-full text-center hover:scale-105 cursor-pointer transition-all">
+              <div
+                key={index}
+                className="p-4 border rounded-full text-center hover:scale-105 cursor-pointer transition-all"
+              >
                 <ClusterView
                   clusterName={cluster.cluster}
                   numOfPatterns={cluster.pattern_count}

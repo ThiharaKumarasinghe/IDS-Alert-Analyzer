@@ -1,125 +1,78 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import AlertTable from "../alerts/components/AlertTable";
+import { useParams, useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
 
-const Patterns = () => {
-  // State to store pattern count and pattern data
-  const [patternCount, setPatternCount] = useState(0);
-  const [patternData, setPatternData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const ExplanationXAI = () => {
+  const { clusterName } = useParams(); // Get clusterName from URL
+  const navigate = useNavigate(); // Initialize useNavigate
+  const [clusterResult, setClusterResult] = useState(null); // Initialize with null
+  const [loading, setLoading] = useState(true); // Set loading to true initially
+  const [error, setError] = useState(null); // Error state
+  const [statusMessage, setStatusMessage] = useState(""); // Status message
 
-  // For search functionality
-  const [selectedFeature, setSelectedFeature] = useState("");
-  const [searchValue, setSearchValue] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
-
-  
-
-  // Fetch pattern data from backend when the component mounts
-  useEffect(() => {
-    const fetchPatternData = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/get_patterns"
-        );
-        const { pattern_count, pattern_data } = response.data;
-
-        // Set pattern count and pattern data
-        setPatternCount(pattern_count);
-        setPatternData(pattern_data);
-        setFilteredData(pattern_data);
-        setLoading(false);
-      } catch (err) {
-        setError("Error fetching pattern data");
-        setLoading(false);
-      }
-    };
-
-    //defualt filtered data
-    const setDefaultFilteredData =() => {
-      // setFilteredData(patternData);
-
-    };
-
-    fetchPatternData();
-    setDefaultFilteredData();
-  }, []);
-
-
-  // Handle search operation
-  const handleSearch = () => {
-    if (selectedFeature && searchValue) {
-      // Filter rows based on the selected feature and search value
-      const filtered = patternData.filter((row) =>
-        row[selectedFeature]?.toString().toLowerCase().includes(searchValue.toLowerCase())
+  // Function to fetch aggregate explanations for a cluster
+  const getClusterExplanations = async (clusterName) => {
+    setStatusMessage(`Fetching explanations for Cluster ${clusterName}...`);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/cluster/${clusterName}/xai`,
+        { method: "GET" }
       );
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(patternData); // Show all rows if no search criteria
+      if (!response.ok) {
+        throw new Error("Error fetching explanations");
+      }
+
+      const data = await response.json();
+      setClusterResult(data.result); // Store the result in state
+      setLoading(false); // Set loading to false after fetching
+      setStatusMessage("Explanations fetched successfully");
+    } catch (error) {
+      console.error("Error fetching explanations:", error);
+      setError("An error occurred while fetching explanations.");
+      setLoading(false); // Set loading to false even on error
     }
   };
 
- 
+  // Fetch the data when the component mounts or when clusterName changes
+  useEffect(() => {
+    getClusterExplanations(clusterName);
+  }, [clusterName]);
 
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // Handle loading and error states
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      {/* Header */}
-      <div className=" flex flex-row justify-between items-center">
-        <p className="py-2 px-6 rounded-full border-2">
-          Pattern Count: {patternCount !== null ? patternCount : "Loading..."}
-        </p>
+    <div className="container mx-auto p-4">
+      {/* Back button */}
+      <button
+        className="mb-4 text-blue-500 hover:underline border px-4 py-2 rounded-full flex items-center justify-center gap-2"
+        onClick={() => navigate("/clusters-back")} // Navigate to /clusters-back
+      >
+        <div>
+          <IoArrowBack />
+        </div>
+        Back
+      </button>
+
+      {/* Cluster explanations */}
+      <h2 className="text-2xl font-bold mb-4 bg-lightPurple rounded-full px-4 py-2 flex">
+        Explanation for Cluster - {clusterName}
+      </h2>
+
+      {/* Display fetched explanations */}
+      <div>
+        {clusterResult ? (
+          <pre>{JSON.stringify(clusterResult, null, 2)}</pre> // Pretty print the fetched data
+        ) : (
+          <p>No data available for this cluster</p>
+        )}
       </div>
 
-      {/* Search bar */}
-      <div className=" bg-lightPurple rounded-full mt-3 py-4 px-10 flex flex-row items-center justify-center gap-4">
-        {/* Select the option */}
-        <select
-          className="select select-bordered w-full max-w-xs"
-          onChange={(e) => setSelectedFeature(e.target.value)}
-        >
-          <option disabled selected>
-            Select Required Feature
-          </option>
-          {patternData.length > 0 &&
-            Object.keys(patternData[0]).map((key) => (
-              <option key={key} value={key}>
-                {key}
-              </option>
-            ))}
-        </select>
-
-        {/* Enter the value */}
-        <input
-          type="text"
-          placeholder="Type Value"
-          className="input input-bordered w-full max-w-xs"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-        />
-
-        {/* Search button */}
-        <button
-          className=" bg-darkPurple text-white px-6 py-2 rounded-full hover:bg-purple hover:text-black transition-all cursor-pointer"
-          onClick={handleSearch}
-        >
-          Search
-        </button>
-      </div>
-
-      {/* Alert data */}
-      <AlertTable csvAlertData={filteredData} />
+      {/* Status message */}
+      {statusMessage && <p>{statusMessage}</p>}
     </div>
   );
 };
 
-export default Patterns;
+export default ExplanationXAI;

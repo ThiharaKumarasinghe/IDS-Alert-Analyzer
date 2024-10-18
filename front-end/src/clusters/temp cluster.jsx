@@ -1,41 +1,102 @@
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ClusterView from "./components/ClusterView"; // Assuming this component renders individual cluster details
 
-const ClusterView = ({ clusterName, numOfPatterns, numOfAlerts }) => {
-  const navigate = useNavigate();
+const Clusters = () => {
+  const [clusterData, setClusterData] = useState([]);
+  const [silhouetteScore, setSilhouetteScore] = useState(0.8);  // Default silhouette score
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleInspectPatterns = () => {
-    // Navigate to the pattern details page for the selected cluster
-    navigate(`/cluster/${clusterName}/patterns`);
+  // Fetch cluster data with the silhouette score
+  const fetchClusterData = async (score) => {
+    try {
+      setLoading(true); // Set loading to true when fetching starts
+      const response = await axios.get(
+        `http://localhost:5000/api/get-clusters?score=${score}`
+      );
+      setClusterData(response.data);
+      setLoading(false); // Set loading to false when fetch completes
+    } catch (err) {
+      setError("Error fetching cluster data");
+      setLoading(false); // Set loading to false on error
+    }
   };
 
-  const handleViewExplanation = () => {
-    // Navigate to the pattern details page for the selected cluster
-    console.log("View Explanation")
-  };
+  // Calculate cluster count based on clusterData length
+  const clusterCount = clusterData.length;
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    fetchClusterData(silhouetteScore);
+  }, []);
 
   return (
-    <div className="border rounded-full p-4 flex flex-col justify-center items-center bg-lightPurple">
-      <h3 className="text-lg font-bold">{clusterName}</h3>
-      <p className="text-sm">Patterns: {numOfPatterns}</p>
-      <p className="text-sm">Alerts: {numOfAlerts}</p>
+    <div className="container mx-auto p-4">
+      {/* Header */}
+      <div className="flex flex-row justify-between items-center mb-4">
+        <p className="py-2 px-6 rounded-full border-2">
+          Cluster Count: {clusterCount !== null ? clusterCount : "Loading..."}
+        </p>
 
-      <button
-        className="mt-2 bg-purple text-white px-4 py-2 rounded-lg hover:bg-darkPurple"
-        onClick={handleInspectPatterns}
-      >
-        Inspect Patterns
-      </button>
+        <p className="py-2 px-6 rounded-full border-2  text-white bg-purple">
+          Optimal Silhouette Score: 0.80
+        </p>
+      </div>
 
-      <button
-        className="mt-2 mb-4 bg-purple text-white px-4 py-2 rounded-lg hover:bg-darkPurple"
-        onClick={handleViewExplanation}
-      >
-        View Explanation
-      </button>
+      {/* Silhouette Score changing */}
+      <div className="flex flex-col items-center justify-center gap-2 pt-4">
+        <div className="flex gap-2">
+          <p className="py-2 px-6 rounded-full border-2">
+            Silhouette Score: {silhouetteScore}
+          </p>
 
-      
+          <button
+            className="hover:scale-105 px-6 py-2 rounded-full hover:bg-purple-40 transition-all cursor-pointer text-white bg-purple"
+            onClick={() => fetchClusterData(silhouetteScore)}
+          >
+            Apply
+          </button>
+        </div>
+
+        {/* Range bar */}
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={silhouetteScore}
+          onChange={(e) => setSilhouetteScore(e.target.value)} // Update silhouette score
+          className="range max-w-80"
+        />
+      </div>
+
+      {/* Error handling */}
+      {error && <p className="text-red-600">{error}</p>}
+
+      {/* Loading Message */}
+      {loading && <p>Please wait.</p>}
+
+      {/* Clusters */}
+      <div className="py-5">
+        {loading ? (
+          <p className=" font-bold text-red-500">Loading results...</p>
+        ) : (
+          <div className="grid grid-cols-5 gap-4">
+            {clusterData.map((cluster, index) => (
+              <div key={index} className="p-4 border rounded-full text-center hover:scale-105 cursor-pointer transition-all">
+                <ClusterView
+                  clusterName={cluster.cluster}
+                  numOfPatterns={cluster.pattern_count}
+                  numOfAlerts={cluster.total_alerts}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default ClusterView;
+export default Clusters;

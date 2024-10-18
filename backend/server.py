@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file  # type: ignore
 import pandas as pd  # type: ignore
 from flask_cors import CORS  # type: ignore
 import os
+import threading
 import numpy as np
 
 # import data mining code
@@ -9,6 +10,9 @@ from mining_patterns_charm import mining_patterns_CHARM
 
 # import data cluster code
 from clustering_hierarchical import hierarchical_clustering_using_patterns
+
+# import XAI code
+from XAI.XAI_functions import train_optimum_model, aggregate_lime_explanations
 
 
 # Dictionary for remane table features
@@ -114,7 +118,12 @@ cluster_csv_path = os.path.abspath("./clustering/cluster_data.csv")
 # Path to the mapped patterns
 mappedPattern_csv_path = os.path.abspath('./patterns/mapped/mappedPatterns.csv')
 
-# Endpoint to get the alert count--------------------------------------------------------------------------------------------------------------------------------
+# Global variable to track the training status
+training_status = {
+    "is_training": False
+}
+
+# Endpoint to get the alert count
 @app.route('/api/alert-count', methods=['GET'])
 def get_alert_count():
     try:
@@ -137,7 +146,7 @@ def get_alert_count():
         return jsonify({"error": str(e)}), 500
 
 
-# Get all alert data from CSV----------------------------------------------------------------------------------------------------------------------------
+# Get all alert data from CSV
 @app.route('/api/csv-data-alert', methods=['GET'])
 def get_csv_data():
     try:
@@ -153,7 +162,7 @@ def get_csv_data():
         return jsonify({"error": str(e)}), 500
 
 
-# Endpoint to download the CSV file----------------------------------------------------------------------------------------------------------------------------
+# Endpoint to download the CSV file
 @app.route('/api/download-csv', methods=['GET'])
 def download_csv():
     try:
@@ -165,7 +174,7 @@ def download_csv():
         return jsonify({"error": str(e)}), 500
 
 
-# Define a route to get patterns using the predefined CSV file path---------------------------------------------------------------------------------------------
+# Define a route to get patterns using the predefined CSV file path
 @app.route('/api/get_patterns', methods=['GET'])
 def get_patterns():
     try:
@@ -218,7 +227,7 @@ def get_cluster_data():
 
 
 
-# Get pattern details in given cluster----------------------------------------------------------------------------------------------------------------------------
+# Get pattern details in given cluster
 @app.route('/api/cluster/<cluster_name>/patterns', methods=['GET'])
 def get_cluster_patterns(cluster_name):
     try:
@@ -265,7 +274,7 @@ def get_cluster_patterns(cluster_name):
         return jsonify({"error": str(e)}), 500
 
 
-# Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
+# Get all clusters from patterns
 @app.route('/api/get-clusters-back', methods=['GET'])
 def get_cluster_data_back():
     try:
@@ -288,12 +297,50 @@ def get_cluster_data_back():
     
 
 
+# XAI routes---------------------------------------------------------
+
+# train the XAI model
+@app.route('/api/train-xai-model', methods=['GET'])
+def train_xai_model():
+    global training_status
+
+    # If a model is already being trained, return status
+    if training_status["is_training"]:
+        return jsonify({"message": "Model training is already in progress"}), 200
+
+    # Set the status to indicate that training has started
+    training_status["is_training"] = True
+
+    # Start a new thread for training the model
+    train_optimum_model(cluster_csv_path)
+    # thread = threading.Thread(target=train_optimum_model, args=(cluster_csv_path))
+    # thread.start()
+    training_status["is_training"] = False
+
+    return jsonify({"message": "Model training has started"}), 202
+
+@app.route('/api/training-status', methods=['GET'])
+def get_training_status():
+    global training_status
+    return jsonify({"is_training": training_status["is_training"]}), 200
 
 
-
-
-
-
+@app.route('/api/cluster/<cluster_name>/xai', methods=['GET'])
+def aggregate_lime_explanations_route(cluster_name):
+    try:
+        # Convert the cluster_name from string to integer
+        cluster_name_int = int(cluster_name)
+        
+        if not cluster_name_int:
+            return jsonify({"error": "Cluster name is required"}), 400
+        
+        # Run aggregate_lime_explanations for the given clusterName
+        explanation_output = aggregate_lime_explanations(cluster_csv_path, cluster_name_int)
+        
+        # Return the result to the frontend
+        return jsonify({"result": explanation_output}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 

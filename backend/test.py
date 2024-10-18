@@ -1,9 +1,14 @@
 from mining_patterns_charm import mining_patterns_CHARM 
 import os
 
+from XAI.XAI_functions import train_optimum_model, aggregate_lime_explanations
 
-csv_file_path = os.path.abspath("../CSV_GeneratedFile/alertCSV.csv")
+# Path to the cluster CSV file
+cluster_csv_path = os.path.abspath("./clustering/cluster_data.csv")
 
-pattern_count, pattern_data = mining_patterns_CHARM(csv_file_path)
 
-print(pattern_data)
+train_optimum_model(cluster_csv_path)
+
+explanation = aggregate_lime_explanations(cluster_csv_path,6)
+
+print(explanation)

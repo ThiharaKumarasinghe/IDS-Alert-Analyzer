@@ -1,3 +1,9 @@
 To Enable the virtual environment
 .venv\Scripts\activate
 
+// to run frontend
+npm start
+
+
+// to run backend
+python server.py
