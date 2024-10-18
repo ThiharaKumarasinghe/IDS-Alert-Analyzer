@@ -51,100 +51,103 @@ const ExplanationXAI = () => {
   );
   if (error) return <p>{error}</p>;
 
-  // Sort the cluster result by values in ascending order
-  const sortedClusterResult = clusterResult
-    ? Object.entries(clusterResult).sort((a, b) => a[1] - b[1])
-    : [];
+// Sort the cluster result by values in descending order
+const sortedClusterResult = clusterResult
+  ? Object.entries(clusterResult).sort((a, b) => b[1] - a[1]) // Sort in descending order
+  : [];
 
-  const sortedLabels = sortedClusterResult.map(item => item[0]); // Sorted feature names
-  const sortedValues = sortedClusterResult.map(item => item[1]); // Sorted explanation values
+// Create reversed arrays for labels and values
+const sortedLabels = sortedClusterResult.map(item => item[0]); // Sorted feature names
+const sortedValues = sortedClusterResult.map(item => item[1]); // Sorted explanation values
 
-  // Generate a colorful array of background colors for the bars
-  const backgroundColors = sortedValues.map((_, idx) => 
-    `hsl(${(idx * 35) % 360}, 70%, 50%)` // Generate dynamic colors using HSL
-  );
+// Generate a colorful array of background colors for the bars
+const backgroundColors = sortedValues.map((_, idx) => 
+  `hsl(${(idx * 35) % 360}, 70%, 50%)` // Generate dynamic colors using HSL
+);
 
-  // Prepare data for the chart
-  const chartData = {
-    labels: sortedLabels, // Feature names
-    datasets: [
-      {
-        label: 'LIME Explanation Values',
-        data: sortedValues, // Explanation values
-        backgroundColor: backgroundColors, // Colorful bars
-        borderColor: backgroundColors, // Matching border color
-        borderWidth: 2,
-        hoverBackgroundColor: 'rgba(255, 99, 132, 0.2)', // Hover effect
-        hoverBorderColor: 'rgba(255, 99, 132, 1)', // Hover effect border
-        barThickness: 30, // Thicker bars for visibility
-        barPercentage: 0.5, // Space between bars
-        categoryPercentage: 0.5, // Space between categories
-      },
-    ],
-  };
+// Prepare data for the chart
+const chartData = {
+  labels: sortedLabels, // Feature names
+  datasets: [
+    {
+      label: 'LIME Explanation Values',
+      data: sortedValues, // Explanation values
+      backgroundColor: backgroundColors, // Colorful bars
+      borderColor: backgroundColors, // Matching border color
+      borderWidth: 2,
+      hoverBackgroundColor: 'rgba(255, 99, 132, 0.2)', // Hover effect
+      hoverBorderColor: 'rgba(255, 99, 132, 1)', // Hover effect border
+      barThickness: 30, // Thicker bars for visibility
+      barPercentage: 0.5, // Space between bars
+      categoryPercentage: 0.5, // Space between categories
+    },
+  ],
+};
 
-  const chartOptions = {
-    responsive: true,
-    indexAxis: 'y', // Switch to horizontal bar chart
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          color: '#333', // Legend color
-          font: {
-            size: 14, // Slightly larger font for legend
-          },
-        },
-      },
-      title: {
-        display: true,
-        text: `LIME Explanations for Cluster ${clusterName}`,
+const chartOptions = {
+  responsive: true,
+  indexAxis: 'y', // Keep horizontal bar chart
+  plugins: {
+    legend: {
+      position: 'top',
+      labels: {
+        color: '#333', // Legend color
         font: {
-          size: 20, // Larger title font size
-        },
-        color: '#111',
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0,0,0,0.7)', // Tooltip customization
-        titleColor: '#fff',
-        bodyColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#333',
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          color: '#333', // Y-axis (features) label color
-          font: {
-            size: 12, // Adjusted label size for better readability
-          },
-          autoSkip: false, // Prevent skipping of labels
-        },
-        grid: {
-          display: false, // Remove Y-axis grid for cleaner look
-        },
-      },
-      x: {
-        beginAtZero: true,
-        reverse: true, // Reverse the X-axis to have the highest values on the right
-        ticks: {
-          color: '#333', // X-axis label color
-          font: {
-            size: 12, // Adjusted X-axis font size
-          },
-        },
-        grid: {
-          color: 'rgba(200,200,200,0.3)', // Light X-axis grid
+          size: 14, // Slightly larger font for legend
         },
       },
     },
-    animation: {
-      duration: 2000, // Animation duration for bar loading
-      easing: 'easeInOutBounce', // Smooth animation effect
+    title: {
+      display: true,
+      text: `LIME Explanations for Cluster ${clusterName}`,
+      font: {
+        size: 20, // Larger title font size
+      },
+      color: '#111',
     },
-  };
+    tooltip: {
+      backgroundColor: 'rgba(0,0,0,0.7)', // Tooltip customization
+      titleColor: '#fff',
+      bodyColor: '#fff',
+      borderWidth: 1,
+      borderColor: '#333',
+    },
+  },
+  scales: {
+    y: {
+      ticks: {
+        color: '#333', // Y-axis (features) label color
+        font: {
+          size: 12, // Adjusted label size for better readability
+        },
+        autoSkip: false, // Prevent skipping of labels
+      },
+      grid: {
+        display: false, // Remove Y-axis grid for cleaner look
+      },
+    },
+    x: {
+      beginAtZero: true,
+      min: Math.max(...sortedValues), // Max value from sortedValues
+      max: Math.min(...sortedValues), // Min value from sortedValues
+      ticks: {
+        color: '#333', // X-axis label color
+        font: {
+          size: 12, // Adjusted X-axis font size
+        },
+      },
+      grid: {
+        color: 'rgba(200,200,200,0.3)', // Light X-axis grid
+      },
+    },
+  },
+  animation: {
+    duration: 2000, // Animation duration for bar loading
+    easing: 'easeInOutBounce', // Smooth animation effect
+  },
+};
 
+  
   return (
     <div className="container mx-auto p-4">
       {/* Back button */}
