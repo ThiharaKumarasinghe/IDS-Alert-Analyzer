@@ -11,8 +11,8 @@ def get_max_and_min(column_name, df):
     minimum_value = df[column_name].min()
 
     # Print the maximum and minimum values
-    print("Maximum Value:", maximum_value)
-    print("Minimum Value:", minimum_value)
+    # print("Maximum Value:", maximum_value)
+    # print("Minimum Value:", minimum_value)
 
 
 # Function to categorize values based on ranges
@@ -70,7 +70,14 @@ def map_ranges_to_pattern_df(pattern_df, categorization_data):
         column = category_data[0]
         ranges_dict = category_data[1]
 
-        # Map the values in the column to their corresponding ranges
-        pattern_df_mapped[column] = pattern_df[column].map(ranges_dict)
+        # Convert the numpy float64 values to regular floats in the ranges_dict and round to 3 decimal places
+        ranges_dict = {k: (round(float(v[0]), 3), round(float(v[1]), 3)) if isinstance(v, tuple) else round(float(v), 3)
+                       for k, v in ranges_dict.items()}
+
+        # Map the values in the column to their corresponding ranges, rounding to 3 decimal places
+        pattern_df_mapped[column] = pattern_df[column].map(
+            lambda x: f"({round(ranges_dict[x][0], 3)} - {round(ranges_dict[x][1], 3)})" if x in ranges_dict else None
+        )
     
     return pattern_df_mapped
+

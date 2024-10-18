@@ -111,6 +111,9 @@ pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features_3.
 # Path to the cluster CSV file
 cluster_csv_path = os.path.abspath("./clustering/cluster_data.csv")
 
+# Path to the mapped patterns
+mappedPattern_csv_path = os.path.abspath('./patterns/mapped/mappedPatterns.csv')
+
 # Endpoint to get the alert count--------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/alert-count', methods=['GET'])
 def get_alert_count():
@@ -169,52 +172,25 @@ def get_patterns():
         # Call the mining_patterns_CHARM function with the CSV file path
         pattern_count, pattern_data = mining_patterns_CHARM(csv_file_path)
 
+
+
+        # Print pattern count to the console
+        print(f"Pattern count: {type(pattern_count)}")
+        print(f"Pattern count: {pattern_data}")
+        # print(f"Pattern data: {pattern_data}")
+
         # Return the pattern count and the pattern data as a JSON response
         return jsonify({
             "pattern_count": pattern_count,
             "pattern_data": pattern_data
         }), 200
+
     except FileNotFoundError:
         return jsonify({"error": "CSV file not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
-# @app.route('/api/get-clusters', methods=['GET'])
-# def get_cluster_data():
-#     try:
-#         # Read the CSV file into a DataFrame
-#         df = hierarchical_clustering_using_patterns(pattern_csv_path)
-        
-#         # Convert DataFrame to a list of dictionaries (for JSON serialization)
-#         csv_data = df.to_dict(orient='records')
-        
-#         # Return the CSV data as JSON response
-#         return jsonify(csv_data), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
 
-
-# Get all clusters from patterns----------------------------------------------------------------------------------------------------------------------------
-# @app.route('/api/get-clusters', methods=['GET'])
-# def get_cluster_data():
-#     try:
-#         # Read the CSV file into a DataFrame
-#         df = hierarchical_clustering_using_patterns(pattern_csv_path)
-        
-#         # Group the data by 'cluster' to calculate the required information
-#         cluster_summary = df.groupby('cluster').agg(
-#             pattern_count=('cluster', 'size'),             # Count of patterns in each cluster
-#             total_alerts=('Support Count', 'sum')          # Summation of Support Count (alerts) in each cluster
-#         ).reset_index()
-        
-#         # Convert to a list of dictionaries (for JSON serialization)
-#         cluster_data = cluster_summary.to_dict(orient='records')
-        
-#         # Return the cluster data as JSON response
-#         return jsonify(cluster_data), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
 
 # Get all clusters from patterns based on silhouette score
 @app.route('/api/get-clusters', methods=['GET'])

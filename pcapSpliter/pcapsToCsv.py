@@ -3,6 +3,7 @@ import subprocess
 
 # split largr pcap into small
 #editcap -c 1000000 pacpLarge.pcap split_file.pcap
+#python pcapsToCsv.py
 
 # Path to the folder containing the split PCAP files
 pcap_directory = './pcaps'  # Update this to the correct directory

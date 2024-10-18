@@ -25,10 +25,6 @@ const Patterns = () => {
         );
         const { pattern_count, pattern_data } = response.data;
 
-        console.log(pattern_count, pattern_data)
-        console.log(typeof pattern_count)
-        console.log(typeof pattern_data)
-
         // Set pattern count and pattern data
         setPatternCount(pattern_count);
         setPatternData(pattern_data);
@@ -76,7 +72,6 @@ const Patterns = () => {
   }
 
   return (
- 
     <div>
       {/* Header */}
       <div className=" flex flex-row justify-between items-center">
@@ -84,8 +79,6 @@ const Patterns = () => {
           Pattern Count: {patternCount !== null ? patternCount : "Loading..."}
         </p>
       </div>
-
-      
 
       {/* Search bar */}
       <div className=" bg-lightPurple rounded-full mt-3 py-4 px-10 flex flex-row items-center justify-center gap-4">

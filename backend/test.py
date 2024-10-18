@@ -1,7 +1,9 @@
-def testFunction(path):
-    pattern_data = path
-    pattern_count = 10
-    print("hello")
+from mining_patterns_charm import mining_patterns_CHARM 
+import os
 
-    # Return both the pattern count and the data
-    return pattern_count, pattern_data
+
+csv_file_path = os.path.abspath("../CSV_GeneratedFile/alertCSV.csv")
+
+pattern_count, pattern_data = mining_patterns_CHARM(csv_file_path)
+
+print(pattern_data)
