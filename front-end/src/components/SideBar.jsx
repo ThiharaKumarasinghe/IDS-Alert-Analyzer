@@ -13,11 +13,23 @@ const SideBar = () => {
           </span>
 
           <ul className="mt-6 space-y-1">
-            <li>
+          <li>
               <a
                 href="/"
                 className={`block rounded-lg px-4 py-2 text-sm font-medium hover:scale-105 transition-all ${
                   location.pathname === "/"
+                    ? "bg-purple text-white"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-700"
+                }`}
+              >
+                Upload PACP
+              </a>
+            </li>
+            <li>
+              <a
+                href="/alerts"
+                className={`block rounded-lg px-4 py-2 text-sm font-medium hover:scale-105 transition-all ${
+                  location.pathname === "/alerts"
                     ? "bg-purple text-white"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-700"
                 }`}

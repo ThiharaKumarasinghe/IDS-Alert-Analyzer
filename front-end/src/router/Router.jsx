@@ -7,6 +7,8 @@ import XAI from "../XAI/XAI";
 import PatternDetails from "../clusters/components/PatternDetails";
 import ClusterBack from "../clusters/components/ClusterBack";
 import ExplanationXAI from "../clusters/components/ExplanationXAI";
+import PCAP_Upload from "../PCAP_Upload/PCAP_Upload";
+
 
 const router = createBrowserRouter([
   {
@@ -15,6 +17,10 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
+        element: <PCAP_Upload />,
+      },
+      {
+        path: "/alerts",
         element: <Alerts />,
       },
       {

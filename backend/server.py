@@ -4,6 +4,8 @@ from flask_cors import CORS  # type: ignore
 import os
 import threading
 import numpy as np
+import subprocess
+
 
 # import data mining code
 from mining_patterns_charm import mining_patterns_CHARM 
@@ -341,6 +343,60 @@ def aggregate_lime_explanations_route(cluster_name):
         return jsonify({"result": explanation_output}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# PCAP file uploading----------------------------------------------------------------------------------------------------------------------------
+# Directory to save uploaded files
+UPLOAD_FOLDER = './uploads'
+GENERATED_CSV_FOLDER = './Generated_CSV'
+
+# Ensure that the directories exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(GENERATED_CSV_FOLDER, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+
+    
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file part'}), 400
+    
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'message': 'No selected file'}), 400
+
+    if not file.filename.endswith('.pcap'):
+        return jsonify({'message': 'Invalid file format. Please upload a .pcap file'}), 400
+
+    # Save the file
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(file_path)
+
+    # Convert the .pcap file to .csv using CICFlowMeter
+    try:
+        csv_output_path = os.path.join(GENERATED_CSV_FOLDER, "alertCSV.csv")
+        # Define the path to your virtual environment's activation script
+        venv_activation = os.path.join(".venv", "Scripts", "activate.bat")
+
+        # Command to run within the virtual environment
+        command = f'cmd.exe /c "{venv_activation} && cicflowmeter -f \"{file_path}\" -c \"{csv_output_path}\""'
+        
+        # cicflowmeter_command = [
+        #     'CICFlowMeter',
+        #     '-f', os.path.abspath(file_path),
+        #     '-c', os.path.abspath(csv_output_path)
+        # ]
+
+        # Run the CICFlowMeter command
+        subprocess.run(command, check=True)
+
+        return jsonify({'message': f'File converted successfully. CSV saved at {csv_output_path}'}), 200
+
+    except Exception as e:
+        return jsonify({'message': f'Error processing file: {str(e)}'}), 500
+
 
 
 
