@@ -270,10 +270,13 @@ def train_optimum_model(file_name):
 
     model_HGB = hgb_grid.best_estimator_
 
-    model_HGB.score(X_test.values, y_test.values)
+    
+    # model_HGB.score(X_test.values, y_test.values)
+    # print(accuracy)
 
     y_all = model_HGB.predict(X.values)
     full_report = classification_report(y.values, y_all)
+    accuracy = accuracy_score(y.values, y_all)
 
     print(full_report)
 
@@ -282,3 +285,4 @@ def train_optimum_model(file_name):
         pickle.dump(model_HGB, file)
 
     # return model_HGB
+    return accuracy

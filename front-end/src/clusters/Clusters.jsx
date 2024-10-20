@@ -4,6 +4,7 @@ import ClusterView from "./components/ClusterView"; // Assuming this component r
 
 const Clusters = () => {
   const [clusterData, setClusterData] = useState([]);
+  const [modelAccuracy, setModelAccuracy] = useState();
   const [silhouetteScore, setSilhouetteScore] = useState(0.8); // Default silhouette score
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +45,15 @@ const Clusters = () => {
         "http://localhost:5000/api/train-xai-model",
         { method: "GET" }
       );
+      const data = await response.json();
+      console.log("Model Accuracy : " + data.accuracy);
+
+      if (data.accuracy) {
+        // Round model accuracy to 4 decimal places
+        const roundedAccuracy = data.accuracy.toFixed(4);
+        setModelAccuracy(roundedAccuracy);
+      }
+
       if (!response.ok) {
         throw new Error("Error starting model training");
       }
@@ -56,7 +66,9 @@ const Clusters = () => {
         const status = await statusResponse.json();
 
         if (!status.is_training) {
-          setStatusMessage("Training complete!");
+          setStatusMessage(
+            `Training complete!\nModel Accuracy: ${data.accuracy.toFixed(4)}`
+          );
           setIsTraining(false);
           clearInterval(intervalId);
         }

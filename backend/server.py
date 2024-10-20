@@ -314,12 +314,12 @@ def train_xai_model():
     training_status["is_training"] = True
 
     # Start a new thread for training the model
-    train_optimum_model(cluster_csv_path)
+    model_accuracy = train_optimum_model(cluster_csv_path)
     # thread = threading.Thread(target=train_optimum_model, args=(cluster_csv_path))
     # thread.start()
     training_status["is_training"] = False
 
-    return jsonify({"message": "Model training has started"}), 202
+    return jsonify({ "message": "Model training completed", "accuracy": model_accuracy }), 202
 
 @app.route('/api/training-status', methods=['GET'])
 def get_training_status():

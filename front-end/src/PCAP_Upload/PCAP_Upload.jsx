@@ -66,8 +66,8 @@ const PCAP_Upload = () => {
         animate={{ x: 0, opacity: 1 }}
         variants={containerVariants}
       >
-        <h2 className="text-xl font-bold text-purple">Welcome to...</h2>
-        <h1 className="text-5xl font-extrabold text-blue-950">
+        <h2 className="text-2xl font-bold text-purple">Welcome to...</h2>
+        <h1 className="text-6xl font-extrabold text-blue-950">
           IDS Alerts Analyser
         </h1>
         <p>
