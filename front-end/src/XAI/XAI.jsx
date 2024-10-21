@@ -129,7 +129,7 @@ const explainCluster = async (clusterResult) => {
       {/* Display explanation */}
       {explanation && (
         <div>
-          <h2>Explanation for Cluster 6:</h2>
+          <h2>Explanation for Cluster</h2>
           <pre>{explanation}</pre>
         </div>
       )}
