@@ -46,9 +46,9 @@ const router = createBrowserRouter([
       {
         path: "/xai",
         element: <XAI />,
-      },
+      }
     ],
-  },
+  }
 ]);
 
 export default router;

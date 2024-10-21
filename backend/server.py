@@ -5,6 +5,14 @@ import os
 import threading
 import numpy as np
 import subprocess
+from dotenv import load_dotenv # type: ignore
+load_dotenv()
+
+
+# Add AI explanation
+import google.generativeai as genai # type: ignore
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+genai.configure(api_key=GEMINI_API_KEY)
 
 
 # import data mining code
@@ -396,6 +404,88 @@ def upload_file():
 
     except Exception as e:
         return jsonify({'message': f'Error processing file: {str(e)}'}), 500
+
+
+# get Gemini explanation
+
+@app.route('/api/explain-cluster', methods=['POST'])
+def explain_cluster():
+    try:
+        # print(GEMINI_API_KEY)
+
+        # Get the cluster result from the request
+        cluster_result = request.json.get('cluster_result', None)
+        if not cluster_result:
+            return jsonify({"error": "No cluster result provided"}), 400
+
+        # print(cluster_result)
+        generation_config = {
+        # "temperature": 1,
+        # "top_p": 0.95,
+        # "top_k": 64,
+        # "max_output_tokens": 500,
+        # "response_mime_type": "text/plain",
+        }
+        # Initialize the Gemini model
+        # model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            generation_config=generation_config,
+        )
+                
+        # Generate the explanation using Gemini API
+        response = model.generate_content(f"Explain the following cluster result in terms of network traffic analysis: {cluster_result}")
+        
+        # Extract the explanation text from the response
+        explanation = response.text.strip()  # Assuming `response.text` contains the explanation
+
+        # print(explanation)  # Log the explanation for debugging
+
+        # Return the explanation to the frontend as JSON
+        return jsonify({"explanation": explanation})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

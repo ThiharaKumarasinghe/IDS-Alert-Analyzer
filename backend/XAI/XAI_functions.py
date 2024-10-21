@@ -5,9 +5,9 @@ import lime.lime_tabular  # type: ignore
 from matplotlib import pyplot as plt  # type: ignore
 import numpy as np
 import pickle
-import pandas as pd
+import pandas as pd # type: ignore
 
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder # type: ignore
 from sklearn.ensemble import HistGradientBoostingClassifier  # type: ignore
 from sklearn.model_selection import GridSearchCV  # type: ignore
 from sklearn.pipeline import make_pipeline  # type: ignore

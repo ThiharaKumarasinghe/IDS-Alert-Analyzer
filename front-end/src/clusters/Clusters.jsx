@@ -83,7 +83,7 @@ const Clusters = () => {
   return (
     <div className="container mx-auto p-4">
       {/* Header */}
-      <div className="flex flex-row justify-between items-center mb-4">
+      <div className="flex flex-row justify-between items-center mb-4 gap-4">
         <p className="py-2 px-6 rounded-full border-2">
           Cluster Count: {clusterCount !== null ? clusterCount : "Loading..."}
         </p>
