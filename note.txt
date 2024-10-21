@@ -8,5 +8,3 @@ npm start
 // to run backend
 python server.py
 
-//Chapgpt API key
-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
