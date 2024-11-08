@@ -59,112 +59,36 @@ const ExplanationXAI = () => {
     getClusterExplanations(clusterName);
   }, [clusterName]);
 
-  // Handle loading and error states
-  if (loading)
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader color="#36D7B7" size={50} /> {/* Loading spinner */}
-      </div>
-    );
-  if (error) return <p>{error}</p>;
+  // Parse the explanation text to a structured format
+  const parseExplanation = (explanationText) => {
+    const lines = explanationText.split("\n");
+    let parsed = [];
+    let currentSection = null;
 
-  // Sort the cluster result by values in descending order
-  const sortedClusterResult = clusterResult
-    ? Object.entries(clusterResult).sort((a, b) => b[1] - a[1]) // Sort in descending order
-    : [];
-
-  // Create reversed arrays for labels and values
-  const sortedLabels = sortedClusterResult.map((item) => item[0]); // Sorted feature names
-  const sortedValues = sortedClusterResult.map((item) => item[1]); // Sorted explanation values
-
-  // Generate a colorful array of background colors for the bars
-  const backgroundColors = sortedValues.map(
-    (_, idx) => `hsl(${(idx * 35) % 360}, 70%, 50%)` // Generate dynamic colors using HSL
-  );
-
-  // Prepare data for the chart
-  const chartData = {
-    labels: sortedLabels, // Feature names
-    datasets: [
-      {
-        label: "LIME Explanation Values",
-        data: sortedValues, // Explanation values
-        backgroundColor: backgroundColors, // Colorful bars
-        borderColor: backgroundColors, // Matching border color
-        borderWidth: 2,
-        hoverBackgroundColor: "rgba(255, 99, 132, 0.2)", // Hover effect
-        hoverBorderColor: "rgba(255, 99, 132, 1)", // Hover effect border
-        barThickness: 30, // Thicker bars for visibility
-        barPercentage: 0.5, // Space between bars
-        categoryPercentage: 0.5, // Space between categories
-      },
-    ],
+    lines.forEach((line) => {
+      if (line.startsWith("**") && line.endsWith(":**")) {
+        // Create a new section with the heading
+        currentSection = {
+          heading: line.replace(/\*\*/g, "").replace(":", ""),
+          items: [],
+        };
+        parsed.push(currentSection);
+      } else if (line.startsWith("*")) {
+        if (currentSection) {
+          const itemParts = line.split(":");
+          if (itemParts.length > 1) {
+            currentSection.items.push({
+              feature: itemParts[0].replace("* ", "").trim(),
+              description: itemParts[1].trim(),
+            });
+          }
+        }
+      }
+    });
+    return parsed;
   };
 
-  const chartOptions = {
-    responsive: true,
-    indexAxis: "y", // Keep horizontal bar chart
-    plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          color: "#333", // Legend color
-          font: {
-            size: 14, // Slightly larger font for legend
-          },
-        },
-      },
-      title: {
-        display: true,
-        text: `LIME Explanations for Cluster ${clusterName}`,
-        font: {
-          size: 20, // Larger title font size
-        },
-        color: "#111",
-      },
-      tooltip: {
-        backgroundColor: "rgba(0,0,0,0.7)", // Tooltip customization
-        titleColor: "#fff",
-        bodyColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#333",
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          color: "#333", // Y-axis (features) label color
-          font: {
-            size: 12, // Adjusted label size for better readability
-          },
-          autoSkip: false, // Prevent skipping of labels
-        },
-        grid: {
-          display: false, // Remove Y-axis grid for cleaner look
-        },
-      },
-      x: {
-        beginAtZero: true,
-        min: Math.max(...sortedValues), // Max value from sortedValues
-        max: Math.min(...sortedValues), // Min value from sortedValues
-        ticks: {
-          color: "#333", // X-axis label color
-          font: {
-            size: 12, // Adjusted X-axis font size
-          },
-        },
-        grid: {
-          color: "rgba(200,200,200,0.3)", // Light X-axis grid
-        },
-      },
-    },
-    animation: {
-      duration: 2000, // Animation duration for bar loading
-      easing: "easeInOutBounce", // Smooth animation effect
-    },
-  };
-
-  // Function to explain the cluster result
+  // Function to fetch and display explanation details
   const explainCluster = async (clusterResult) => {
     console.log(clusterResult);
     setStatusMessage("Fetching explanation...");
@@ -194,16 +118,95 @@ const ExplanationXAI = () => {
     }
   };
 
+  // Handle loading and error states
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader color="#36D7B7" size={50} /> {/* Loading spinner */}
+      </div>
+    );
+  if (error) return <p>{error}</p>;
+
+  // Sort the cluster result by values in descending order
+  const sortedClusterResult = clusterResult
+    ? Object.entries(clusterResult).sort((a, b) => b[1] - a[1])
+    : [];
+
+  // Prepare data for the chart
+  const chartData = {
+    labels: sortedClusterResult.map((item) => item[0]), // Feature names
+    datasets: [
+      {
+        label: "LIME Explanation Values",
+        data: sortedClusterResult.map((item) => item[1]), // Explanation values
+        backgroundColor: sortedClusterResult.map(
+          (_, idx) => `hsl(${(idx * 35) % 360}, 70%, 50%)`
+        ), // Dynamic colors
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    indexAxis: "y",
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          color: "#333",
+          font: { size: 14 },
+        },
+      },
+      title: {
+        display: true,
+        text: `LIME Explanations for Cluster ${clusterName}`,
+        font: { size: 20 },
+        color: "#111",
+      },
+      tooltip: {
+        backgroundColor: "rgba(0,0,0,0.7)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+      },
+    },
+    scales: {
+      y: { ticks: { color: "#333", autoSkip: false }, grid: { display: false } },
+      x: { beginAtZero: true, grid: { color: "rgba(200,200,200,0.3)" } },
+    },
+    animation: { duration: 2000, easing: "easeInOutBounce" },
+  };
+
+  // Component to display explanations in a structured format
+  const ExplanationDisplay = ({ explanation }) => {
+    const parsedExplanation = parseExplanation(explanation);
+
+    return (
+      <div className="mt-4 p-4 bg-lightGray rounded-lg shadow-lg max-w-full overflow-x-auto">
+        {parsedExplanation.map((section, index) => (
+          <div key={index} className="mb-6">
+            <h4 className="text-lg font-semibold mb-2">{section.heading}</h4>
+            <ul className="list-disc pl-6 space-y-2">
+              {section.items.map((item, idx) => (
+                <li key={idx}>
+                  <span className="font-semibold">{item.feature}:</span> {item.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto p-4">
       {/* Back button */}
       <button
         className="mb-4 text-blue-500 hover:underline border px-4 py-2 rounded-full flex items-center justify-center gap-2"
-        onClick={() => navigate("/clusters-back")} // Navigate to /clusters-back
+        onClick={() => navigate("/clusters-back")}
       >
-        <div>
-          <IoArrowBack />
-        </div>
+        <IoArrowBack />
         Back
       </button>
 
@@ -215,9 +218,7 @@ const ExplanationXAI = () => {
       {/* Display fetched explanations */}
       <div>
         {clusterResult ? (
-          <div>
-            <Bar data={chartData} options={chartOptions} />
-          </div>
+          <Bar data={chartData} options={chartOptions} />
         ) : (
           <p>No data available for this cluster</p>
         )}
@@ -228,23 +229,17 @@ const ExplanationXAI = () => {
 
       <div className="max-w-full p-4">
         {/* Gemini explanation */}
-        {clusterResult ? (
+        {clusterResult && (
           <button
-            onClick={() => explainCluster(clusterResult)} // Directly pass clusterResult
+            onClick={() => explainCluster(clusterResult)}
             className="bg-darkPurple text-white p-4 rounded-2xl mt-4 hover:scale-105 transition-transform duration-300"
           >
             Explain This Result
           </button>
-        ) : (
-          ""
         )}
 
         {/* Display explanation */}
-        {explanation && (
-          <div className="mt-4 p-4 bg-lightGray rounded-lg shadow-lg max-w-full overflow-x-auto">
-            <pre className="whitespace-pre-wrap break-words">{explanation}</pre>
-          </div>
-        )}
+        {explanation && <ExplanationDisplay explanation={explanation} />}
       </div>
     </div>
   );
