@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import ClipLoader from "react-spinners/ClipLoader"; // Importing loading spinner
+import ExplanationDisplay from "./ExplanationDisplay";
 
 ChartJS.register(
   CategoryScale,
@@ -178,26 +179,26 @@ const ExplanationXAI = () => {
   };
 
   // Component to display explanations in a structured format
-  const ExplanationDisplay = ({ explanation }) => {
-    const parsedExplanation = parseExplanation(explanation);
+  // const ExplanationDisplay = ({ explanation }) => {
+  //   const parsedExplanation = parseExplanation(explanation);
 
-    return (
-      <div className="mt-4 p-4 bg-lightGray rounded-lg shadow-lg max-w-full overflow-x-auto">
-        {parsedExplanation.map((section, index) => (
-          <div key={index} className="mb-6">
-            <h4 className="text-lg font-semibold mb-2">{section.heading}</h4>
-            <ul className="list-disc pl-6 space-y-2">
-              {section.items.map((item, idx) => (
-                <li key={idx}>
-                  <span className="font-semibold">{item.feature}:</span> {item.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="mt-4 p-4 bg-lightGray rounded-lg shadow-lg max-w-full overflow-x-auto">
+  //       {parsedExplanation.map((section, index) => (
+  //         <div key={index} className="mb-6">
+  //           <h4 className="text-lg font-semibold mb-2">{section.heading}</h4>
+  //           <ul className="list-disc pl-6 space-y-2">
+  //             {section.items.map((item, idx) => (
+  //               <li key={idx}>
+  //                 <span className="font-semibold">{item.feature}:</span> {item.description}
+  //               </li>
+  //             ))}
+  //           </ul>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   );
+  // };
 
   return (
     <div className="container mx-auto p-4">
