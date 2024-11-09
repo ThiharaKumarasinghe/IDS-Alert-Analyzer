@@ -48,6 +48,8 @@ const ExplanationXAI = () => {
       setClusterResult(data.result); // Store the result in state
       setLoading(false); // Set loading to false after fetching
       setStatusMessage("Explanations fetched successfully");
+      console.log(data.result);
+      
     } catch (error) {
       console.error("Error fetching explanations:", error);
       setError("An error occurred while fetching explanations.");
@@ -210,6 +212,7 @@ const ExplanationXAI = () => {
         <IoArrowBack />
         Back
       </button>
+      
 
       {/* Cluster explanations */}
       <h2 className="text-2xl font-bold mb-4 bg-lightPurple rounded-full px-4 py-2 flex">

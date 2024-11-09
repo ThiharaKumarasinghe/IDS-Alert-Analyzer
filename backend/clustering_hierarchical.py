@@ -8,16 +8,17 @@ from sklearn.cluster import AgglomerativeClustering  # type: ignore
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 import seaborn as sns  # type: ignore
+import json
 
 from clustering_functions import generate_floats_between, plot_graph_evaluate
 
-def hierarchical_clustering_using_patterns(pattern_file_location,silhouette_score):
+def hierarchical_clustering_using_patterns(pattern_file_location,sillouette_threshold):
     df = pd.read_csv(pattern_file_location)
     print(df.head(10))
     print(df.info())
     # print(df['Label'].value_counts())
 
-    patterns_with_NaN = df.iloc[:, 2:23]
+    patterns_with_NaN = df.iloc[:, 1:23]
 
     duplicate_pattern_count = patterns_with_NaN.duplicated().value_counts()
     print(f"\n\nduplicate_pattern_count :{duplicate_pattern_count}")
@@ -27,13 +28,15 @@ def hierarchical_clustering_using_patterns(pattern_file_location,silhouette_scor
     # numerical_cols = null_handled_patterns.select_dtypes(include=['float64', 'int64']).columns
     # categorical_cols = null_handled_patterns.select_dtypes(include=['object']).columns
 
-    numerical_cols = ['Tot Fwd Pkts Category', 'Tot Bwd Pkts Category',
-                    'TotLen Fwd Pkts Category', 'Pkt Size Avg Category',
-                    'Fwd Act Data Pkts Category', 'Init Fwd Win Byts Category', 'Fwd Seg Size Min',
-                    'TotLen Bwd Pkts Category', 'Subflow Bwd Byts Category',
-                    'Flow Duration Category', 'Flow IAT Mean Category',
-                    'Bwd Pkts/s Category', 'Fwd Pkts/s Category']
-    categorical_cols = ['Dst Port', 'Protocol', 'SYN Flag Cnt', 'ACK Flag Cnt', 'PSH Flag Cnt', ]
+    # Open the JSON file and load the data
+    with open('categorization.json', 'r') as file:
+        data = json.load(file)
+
+    # Extract column names from the loaded data
+    numerical_cols = [item[0] for item in data]
+
+    all_columns = null_handled_patterns.columns.to_list()
+    categorical_cols = list(set(all_columns) - set(numerical_cols))
 
     print(numerical_cols)
     print(categorical_cols)
@@ -142,7 +145,20 @@ def hierarchical_clustering_using_patterns(pattern_file_location,silhouette_scor
     score_df = pd.DataFrame(score_data)
     cosine_metric = score_df[score_df['metric'] == 'cosine']
     average_cosine = cosine_metric[cosine_metric['linkage'] == 'average']
-    num_optimum_clusters = average_cosine[average_cosine['silhouette_score']>silhouette_score].iloc[-1]['number of clusters']
+    print(average_cosine)
+    # num_optimum_clusters = average_cosine[average_cosine['silhouette_score']>sillouette_threshold].iloc[-1]['number of clusters']
+
+    filtered_avg_cosine = average_cosine[average_cosine['silhouette_score'] > sillouette_threshold]
+
+    if not filtered_avg_cosine.empty:
+        # Get the number of clusters from the last row that matches the condition
+        num_optimum_clusters = filtered_avg_cosine.iloc[-1]['number of clusters']
+    else:
+        # Get the number of clusters with the maximum silhouette score
+        num_optimum_clusters = average_cosine.loc[average_cosine['silhouette_score'].idxmax()]['number of clusters']
+        print(f"No clusters met the threshold. Using the maximum silhouette {average_cosine.loc[average_cosine['silhouette_score'].idxmax()]['silhouette_score']} score instead.")
+
+    print(f"Selected num_optimum_clusters: {num_optimum_clusters}")
 
     hierarchical_clustering = AgglomerativeClustering(n_clusters=num_optimum_clusters,
                                                     metric='cosine',
@@ -153,10 +169,10 @@ def hierarchical_clustering_using_patterns(pattern_file_location,silhouette_scor
 
     plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_encoded, df)
 
-    Z = linkage(data_matrix, method='average', metric='cosine')
-    clusters = fcluster(Z, t=num_optimum_clusters, criterion='maxclust')
+    # Z = linkage(data_matrix, method='average', metric='cosine')
+    # clusters = fcluster(Z, t=num_optimum_clusters, criterion='maxclust')
     print(set(clusters))
-    plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_encoded, df)
+    # plot_graph_evaluate(clusters, null_handled_patterns, null_handled_patterns_encoded, df)
 
 
     df['cluster'] = clusters

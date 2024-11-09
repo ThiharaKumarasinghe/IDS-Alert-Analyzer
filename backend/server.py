@@ -117,10 +117,10 @@ app = Flask(__name__)
 CORS(app)
 
 # Path to the CSV file
-csv_file_path = os.path.abspath("../CSV_GeneratedFile/alertCSV.csv")
+csv_file_path = os.path.abspath("./Generated_CSV/alertCSV.csv")
 
 # Path to the pattern CSV file
-pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features_3.csv")
+pattern_csv_path = os.path.abspath("./patterns/IDS_data_0.01_3Null_19features.csv")
 
 # Path to the cluster CSV file
 cluster_csv_path = os.path.abspath("./clustering/cluster_data.csv")
@@ -340,12 +340,14 @@ def aggregate_lime_explanations_route(cluster_name):
     try:
         # Convert the cluster_name from string to integer
         cluster_name_int = int(cluster_name)
+        print(cluster_name_int)
         
         if not cluster_name_int:
             return jsonify({"error": "Cluster name is required"}), 400
         
         # Run aggregate_lime_explanations for the given clusterName
         explanation_output = aggregate_lime_explanations(cluster_csv_path, cluster_name_int)
+        print(explanation_output)
         
         # Return the result to the frontend
         return jsonify({"result": explanation_output}), 200

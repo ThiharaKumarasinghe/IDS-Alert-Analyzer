@@ -33,7 +33,7 @@ def aggregate_lime_explanations(file_name,label_to_explain):
 
     df = pd.read_csv(file_name)
 
-    X = df.iloc[:, 2:21]
+    X = df.iloc[:, 1:21]
     y = df['cluster']
 
     # Load the column order
@@ -43,15 +43,23 @@ def aggregate_lime_explanations(file_name,label_to_explain):
     # Reorder columns to match the training data
     X = X[column_order]
 
-    numerical_cols = ['Tot Fwd Pkts Category', 'Tot Bwd Pkts Category',
-                      'Flow Duration Category', 'TotLen Fwd Pkts Category',
-                      'TotLen Bwd Pkts Category', 'Flow IAT Mean Category',
-                      'Pkt Size Avg Category', 'Fwd Act Data Pkts Category',
-                      'Init Fwd Win Byts Category', 'Bwd Pkts/s Category',
-                      'Fwd Pkts/s Category', 'Subflow Bwd Byts Category']
-    categorical_cols = ['Dst Port',
-                        'Protocol', 'Fwd Seg Size Min', 'SYN Flag Cnt', 'ACK Flag Cnt',
-                        'PSH Flag Cnt']
+    # Load the column order
+    with open('column_order.json', 'r') as file:
+        column_order = json.load(file)
+
+    # Reorder columns to match the training data
+    X = X[column_order]
+
+        # Open the JSON file and load the data
+    with open('categorization.json', 'r') as file:
+        data = json.load(file)
+
+    # Extract column names from the loaded data
+    numerical_cols = [item[0] for item in data]
+
+    all_columns = column_order
+    categorical_cols = list(set(all_columns) - set(numerical_cols))
+
 
     # Convert columns to 'object' data type (if they are categorical, ensure they are strings)
     X[categorical_cols] = X[categorical_cols].astype(str)
@@ -75,23 +83,23 @@ def aggregate_lime_explanations(file_name,label_to_explain):
     X[categorical_cols] = encoder.fit_transform(X[categorical_cols])
 
     column_mapping = {
-        'Tot Fwd Pkts Category': 'Total Forward Packets',
-        'Tot Bwd Pkts Category': 'Total Backward Packets',
-        'Flow Duration Category': 'Flow Duration',
-        'TotLen Fwd Pkts Category': 'Total Length of Forward Packets',
-        'TotLen Bwd Pkts Category': 'Total Length of Backward Packets',
-        'Flow IAT Mean Category': 'Flow Inter-Arrival Time Mean',
-        'Pkt Size Avg Category': 'Average Packet Size',
-        'Fwd Act Data Pkts Category': 'Forward Active Data Packets',
-        'Bwd Pkts/s Category': 'Backward Packets per Second',
-        'Fwd Pkts/s Category': 'Forward Packets per Second',
-        'Subflow Bwd Byts Category': 'Subflow Backward Bytes',
+        'Tot Fwd Pkts': 'Total Forward Packets',
+        'Tot Bwd Pkts': 'Total Backward Packets',
+        'Flow Duration': 'Flow Duration',
+        'TotLen Fwd Pkts': 'Total Length of Forward Packets',
+        'TotLen Bwd Pkts': 'Total Length of Backward Packets',
+        'Flow IAT Mean': 'Flow Inter-Arrival Time Mean',
+        'Pkt Size Avg': 'Average Packet Size',
+        'Fwd Act Data': 'Forward Active Data Packets',
+        'Bwd Pkts/s': 'Backward Packets per Second',
+        'Fwd Pkts/s': 'Forward Packets per Second',
+        'Subflow Bwd Byts': 'Subflow Backward Bytes',
         'Dst Port': 'Destination Port',
         'Protocol': 'Protocol',
         'SYN Flag Cnt': 'SYN Flag Count',
         'ACK Flag Cnt': 'ACK Flag Count',
         'PSH Flag Cnt': 'PSH Flag Count',
-        'Init Fwd Win Byts Category': 'Initial Forward Window Bytes',
+        'Init Fwd Win Byts': 'Initial Forward Window Bytes',
         'Fwd Seg Size Min': 'Minimum Forward Segment Size'
     }
     x_mapped = X.rename(columns=column_mapping)
@@ -199,7 +207,7 @@ def train_optimum_model(file_name):
 
     df = pd.read_csv(file_name)
 
-    X = df.iloc[:, 2:21]
+    X = df.iloc[:, 1:21]
     y = df['cluster']
 
     # Load the column order
@@ -209,15 +217,18 @@ def train_optimum_model(file_name):
     # Reorder columns to match the training data
     X = X[column_order]
 
-    numerical_cols = ['Tot Fwd Pkts Category', 'Tot Bwd Pkts Category',
-                      'Flow Duration Category', 'TotLen Fwd Pkts Category',
-                      'TotLen Bwd Pkts Category', 'Flow IAT Mean Category',
-                      'Pkt Size Avg Category', 'Fwd Act Data Pkts Category',
-                      'Init Fwd Win Byts Category', 'Bwd Pkts/s Category',
-                      'Fwd Pkts/s Category', 'Subflow Bwd Byts Category']
-    categorical_cols = ['Dst Port',
-                        'Protocol', 'Fwd Seg Size Min', 'SYN Flag Cnt', 'ACK Flag Cnt',
-                        'PSH Flag Cnt']
+        # Open the JSON file and load the data
+    with open('categorization.json', 'r') as file:
+        data = json.load(file)
+
+    # Extract column names from the loaded data
+    numerical_cols = [item[0] for item in data]
+
+    all_columns = column_order
+    categorical_cols = list(set(all_columns) - set(numerical_cols))
+
+    print(numerical_cols)
+    print(categorical_cols)
 
     # Convert columns to 'object' data type (if they are categorical, ensure they are strings)
     X[categorical_cols] = X[categorical_cols].astype(str)
@@ -255,9 +266,9 @@ def train_optimum_model(file_name):
     #     'histgradientboostingclassifier__random_state': [42],
     # }
     parameters = {
-        'histgradientboostingclassifier__max_iter': [1000],
+        'histgradientboostingclassifier__max_iter': [600,800,1000, 1200, 1500],
         'histgradientboostingclassifier__learning_rate': [0.1],
-        'histgradientboostingclassifier__max_depth': [25],
+        'histgradientboostingclassifier__max_depth': [25, 50, 75],
         'histgradientboostingclassifier__l2_regularization': [1.5],
         'histgradientboostingclassifier__scoring': ['f1_micro'],
         'histgradientboostingclassifier__random_state': [42],

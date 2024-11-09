@@ -33,10 +33,10 @@ def adaptive_bin_handling(column_name, df, bin_data):
     for idx in range(len(bin_edges) - 1):
         ranges.update({(bin_edges[idx] + bin_edges[idx + 1]) / 2: (bin_edges[idx], bin_edges[idx + 1])})
 
-    bin_data.append([f"{column_name} Category", ranges])
+    bin_data.append([column_name, ranges])
 
     # Apply categorization to column
-    df[f'{column_name} Category'] = df[f'{column_name}'].apply(lambda x: categorize_value(x, ranges))
+    df[column_name] = df[column_name].apply(lambda x: categorize_value(x, ranges))
     # print(df[f'{column_name} Category'].value_counts())
 
     # plt.figure(figsize=(20, 8))
@@ -45,7 +45,7 @@ def adaptive_bin_handling(column_name, df, bin_data):
 
     # print("\n================================================================================\n")
 
-    return f"{column_name} Category", bin_data
+    return column_name, bin_data
 
 
 def return_unique_labels(alertID_List,df):
