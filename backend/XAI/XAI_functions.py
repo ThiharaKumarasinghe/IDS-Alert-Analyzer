@@ -266,9 +266,9 @@ def train_optimum_model(file_name):
     #     'histgradientboostingclassifier__random_state': [42],
     # }
     parameters = {
-        'histgradientboostingclassifier__max_iter': [600,800,1000, 1200, 1500],
+        'histgradientboostingclassifier__max_iter': [600],
         'histgradientboostingclassifier__learning_rate': [0.1],
-        'histgradientboostingclassifier__max_depth': [25, 50, 75],
+        'histgradientboostingclassifier__max_depth': [25],
         'histgradientboostingclassifier__l2_regularization': [1.5],
         'histgradientboostingclassifier__scoring': ['f1_micro'],
         'histgradientboostingclassifier__random_state': [42],

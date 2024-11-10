@@ -64,7 +64,7 @@ const SideBar = () => {
               </a>
             </li>
 
-            <li>
+            {/* <li>
               <a
                 href="/xai"
                 className={`block rounded-lg px-4 py-2 text-sm font-medium hover:scale-105 transition-all ${
@@ -75,7 +75,7 @@ const SideBar = () => {
               >
                 XAI
               </a>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

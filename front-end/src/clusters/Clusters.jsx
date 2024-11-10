@@ -8,6 +8,8 @@ const Clusters = () => {
   const [silhouetteScore, setSilhouetteScore] = useState(0.8); // Default silhouette score
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModelTrain, setIsmodelTrain] = useState(false);
+
 
   // Fetch cluster data with the silhouette score
   const fetchClusterData = async (score) => {
@@ -70,6 +72,7 @@ const Clusters = () => {
             `Training complete!\nModel Accuracy: ${data.accuracy.toFixed(4)}`
           );
           setIsTraining(false);
+          setIsmodelTrain(true)
           clearInterval(intervalId);
         }
       }, 2000);
@@ -155,6 +158,7 @@ const Clusters = () => {
                   clusterName={cluster.cluster}
                   numOfPatterns={cluster.pattern_count}
                   numOfAlerts={cluster.total_alerts}
+                  isModelTraining={isModelTrain}
                 />
               </div>
             ))}

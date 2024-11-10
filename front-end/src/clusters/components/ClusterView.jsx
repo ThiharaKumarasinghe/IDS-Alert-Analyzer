@@ -2,9 +2,13 @@ import { useNavigate } from "react-router-dom";
 import ExplanationModel from "./ExplanationXAI";
 import React, { useState } from "react";
 
-const ClusterView = ({ clusterName, numOfPatterns, numOfAlerts }) => {
+const ClusterView = ({
+  clusterName,
+  numOfPatterns,
+  numOfAlerts,
+  isModelTraining,
+}) => {
   const navigate = useNavigate();
-
 
   const handleInspectPatterns = () => {
     // Navigate to the pattern details page for the selected cluster
@@ -15,7 +19,6 @@ const ClusterView = ({ clusterName, numOfPatterns, numOfAlerts }) => {
     // Navigate to the pattern details page for the selected cluster
     navigate(`/cluster/${clusterName}/xai`);
   };
-
 
   return (
     <div className="border rounded-full p-4 flex flex-col justify-center items-center bg-lightPurple">
@@ -30,14 +33,15 @@ const ClusterView = ({ clusterName, numOfPatterns, numOfAlerts }) => {
         Inspect Patterns
       </button>
 
-      <button
-        className="mt-2 bg-purple text-white px-4 py-2 rounded-lg hover:bg-darkPurple mb-4"
-        onClick={handleExplanationView}
-      >
-        View Explanation
-      </button>
-
-
+      {(isModelTraining ||
+        window.location.href === "http://localhost:5173/clusters-back") && (
+        <button
+          className="mt-2 bg-purple text-white px-4 py-2 rounded-lg hover:bg-darkPurple mb-4"
+          onClick={handleExplanationView}
+        >
+          View Explanation
+        </button>
+      )}
     </div>
   );
 };

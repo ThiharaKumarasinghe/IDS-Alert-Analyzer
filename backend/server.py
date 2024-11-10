@@ -148,6 +148,7 @@ def get_alert_count():
         # Assuming each row in the CSV file represents an alert
         alert_count = len(df)
         
+        
         # Return the alert count as JSON response
         return jsonify({"alertCount": alert_count}), 200
     except FileNotFoundError:
